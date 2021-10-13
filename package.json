@@ -1,0 +1,11 @@
+{
+  "name": "garfield-cli",
+  "version": "1.0.0",
+  "description": "Garfield-cli is a cli building tool for modern web application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Garfield Dong",
+  "license": "ISC"
+}
