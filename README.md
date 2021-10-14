@@ -1,6 +1,42 @@
 # Garfield-cli
 
-A cli building tool for modern web application.
+The web infrastructure for building modern web applications.
+
+## 项目缘起
+
+现在部门项目主要使用 CRA 构建，但是 CRA 存在一些问题：
+
+- CRA 不具备定制化能力，不像 Vue-cli 可以在初始化的时候选择需要的特性，导致新创建的项目需要花大量时间手动配置。虽然 CRA 可以使用自定义模板，但是还是不够灵活；
+- CRA 不能像 Vue-cli 一样传入自定义 Webpack 配置。虽然可以通过第三方库解决，但是网上资料比较少，而且增加学习成本；
+
+由于以上的原因，导致在开发新项目时，很多同事宁可直接复制一份存量项目，也不愿意从零开始配置。本项目旨在学习研究 CRA 源码的基础上，通过开发一套脚手架构建工具，解决 CRA 存在的问题。
+
+通过研究 CRA 源码可知，一个前端项目可以分为两部分：
+
+- 项目模板：项目根目录下的内容，也就是与业务开发有交集的部分；
+- 构建脚本：通常安装在 `node_modules` 里面，只在构建时发挥作用，一般很少去改动；
+
+因此可以通过 monorepo 机制管理多个包，例如：
+
+```js
+// 项目模板
+react-template
+react-ts-template
+vue-template
+vue-ts-template
+
+// 构建脚本
+garfield-script
+
+// 项目配置
+garfield-redux
+garfield-router
+eslint-config
+prettier-config
+commit-lint
+```
+
+如果使用自定义的脚手架工具，不仅可以支持自定义 Webpack 配置，还可以增加不同的项目模板，同时支持 React 和 Vue 项目，此外还提供开箱即用的配置，例如 React 状态管理库不仅配置麻烦，使用也很麻烦，所以干脆封装成了一个依赖库，支持热插拔，一个命令即可为项目赋能。
 
 ## 项目特点
 
