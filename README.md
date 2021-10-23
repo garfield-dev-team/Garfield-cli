@@ -40,7 +40,7 @@ commit-lint
 
 ## 项目特点
 
-- 使用基于 lerna 的 monorepo 仓库，支持热插拔，一个命令即可为项目赋能；
+- 使用单仓多包（monorepo），支持热插拔，一个命令即可为项目赋能；
 - 使用 pre-script 进行前置操作，例如检查版本、打印欢迎信息；
 - 因为是构建工具，所以只用一份 `webpack.config.js` ，具体参考 CRA 配置；
 - 参考 Vue-cli 做法，使用 `chain-webpack` 的方式进行配置；
@@ -50,6 +50,13 @@ commit-lint
 ## 技术细节
 
 使用 Webpack5 ，开发服务器使用 `express` + `webpack-dev-middleware`
+
+现在实现单仓多包方案主要有：
+
+- lerna + yarn workspace ；
+- pnpm ；
+
+> 其中 pnpm 自带单仓多包功能，不会出现依赖重复安装问题，而且解决了幽灵依赖问题，Vue3 和 Vite 都在使用。
 
 插件升级方案：
 
@@ -98,6 +105,24 @@ commit-lint
   > 推荐在 webpack 配置中设置 `cache.buildDependencies.config: [__filename]` 来获取最新配置以及所有依赖项
   > 
   > 参考：https://webpack.docschina.org/configuration/cache/#root
+
+- 启动 Tree Shaking 功能：
+  
+  在 Webpack 中，启动 Tree Shaking 功能必须同时满足三个条件：
+  - 使用 ESM 规范编写模块代码
+  - 配置 `optimization.usedExports` 为 `true` ，启动标记功能
+  - 启动代码优化功能（目的是启用代码压缩，使用 Terser 删掉没用到的导出语句），可以通过如下方式实现：
+
+    ```js
+    // 配置 mode = production
+    mode: "production"
+    // 或者配置
+    optimization.minimize = true
+    // 或者提供数组
+    optimization.minimizer = []
+    ```
+
+  > 参考：https://webpack.docschina.org/guides/tree-shaking/
 
 - 开发环境启用热更新，使用 `react-refresh-webpack-plugin` 热更新 react 组件:
 
