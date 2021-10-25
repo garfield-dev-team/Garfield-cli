@@ -90,9 +90,13 @@ commit-lint
   - development: 开发环境；
   - staging: 预发布环境；
   - production: 生产环境；
-- 开启 sourceMap: 
-  - 开发环境使用 `eval-cheap-module-source-map` ；
+- 慎用 source-map: 
+  
+  source-map 是一种将经过编译、压缩、混淆的代码代码映射回源码的技术，它能够帮助开发者迅速定位到更有意义、更结构化的源码中，方便调试。不过，同样的 source-map 操作本身也有很大性能开销，建议读者根据实际场景慎重选择最合适的 source-map 方案。
+  
+  - 开发环境使用 `eval-cheap-module-source-map` ，确保最佳编译速度；
   - 生产环境不开启或者使用 `hidden-source-map` ；
+  
 - 启用 CSS、less、sass 模块化；
 - Webpack 运行时代码单独打包（Webpack5 新特性，详见 [Webpack Chunk 分包规则](https://juejin.cn/post/6961724298243342344)），单独打包不是目的，主要是为了设置缓存。这块代码基本上不会修改，如果还跟业务代码一起打包进去，那么每次业务代码修改，浏览器还得加载一遍 webapck runtime 的代码，浪费带宽：
 
@@ -161,4 +165,114 @@ commit-lint
   ```
 
   > 参考：[2021 年 TypeScript + React 工程化指南](https://zhuanlan.zhihu.com/p/403970666)
+
+- 缩小资源搜索范围
+
+  - 使用 `enhanced-resolve` 缩小资源搜索范围；
+
+    > 参考：https://github.com/webpack/enhanced-resolve
+
+  - 修改 `resolve.extensions` 减少匹配次数，代码中尽量补齐文件后缀名；
+  - `resolve.modules` 配置
+
+    当 Webpack 遇到 `import 'lodash'` 这样的 npm 包导入语句时，会尝试先当前项目的 `node_modules` 搜索资源，如果找不到则按目录层级尝试逐级向上查找 `node_modules` 目录，如果依然找不到则最终尝试在全局 `node_modules` 中搜索。
+
+    在一个依赖管理执行的比较良好的业务系统中，我们通常会尽量保持 `node_modules` 资源的高度内聚，控制在有限的一两个层级上，因此 Webpack 这一逐层查找的逻辑大多数情况下实用性并不高，开发者可以通过修改 `resolve.modules` 配置项，主动关闭逐层搜索功能：
+
+    ```js
+    module.exports = {
+      //...
+      resolve: {
+        modules: [path.resolve(__dirname, 'node_modules')],
+      },
+    };
+    ```
+
+  - `resolve.mainFiles` 配置
+
+    与 `resolve.extensions` 类似，`resolve.mainFiles` 配置项用于定义文件夹默认文件名，例如对于 `import './dir'` 请求，假设 `resolve.mainFiles = ['index', 'home']` ，Webpack 会按依次测试 `./dir/index` 与 `./dir/home` 文件是否存在。
+
+    因此，实际项目中应控制 `resolve.mainFiles` 数组数量，减少匹配次数。
+
+- 跳过文件编译
+  
+  有不少 npm 包默认提供了提前打包好，不需要做二次编译的资源版本，例如：
+
+  - Vue 包的 `node_modules/vue/dist/vue.runtime.esm.js` 文件
+  - React 包的 `node_modules/react/umd/react.production.min.js` 文件
+
+  对使用方来说，这些资源版本都是高度独立、内聚的代码片段，没必要重复做依赖解析、代码转译操作，此时可以使用 `module.noParse` 配置项跳过这些 npm 包:
+
+  ```js
+  module.exports = {
+    //...
+    module: {
+      noParse: /vue|lodash|react/,
+    },
+  };
+  ```
+
+  > 配置该属性后，任何匹配该选项的包都会跳过耗时的分析过程，直接打包进 chunk，提升编译速度
+
+- 最小化 Loader 作用范围
+  
+  Loader 组件用于将各式文件资源转换为可被 JavaScript 理解、运行的代码片段，正是这一特性支撑起 Webpack 强大的资源处理能力。不过，Loader 在执行内容转换的过程可能需要做大量的 CPU 运算操作，例如 babel-loader、eslint-loader、vue-loader 等，因此开发者有必要根据实际需求，通过 `module.rules.include`、`module.rules.exclude` 等配置项限定 Loader 的执行范围：
+  
+  ```js
+  module.exports = {
+    // ...
+    module: {
+      rules: [{
+        test: /\.js$/,
+        exclude: /node_modules/,
+        // include: path.join(__dirname, './src'),
+        use: ['babel-loader', 'eslint-loader']
+      }]
+    }
+  };
+  ```
+  
+  > 示例配置 `exclude: /node_modules/` 属性后，Webpack 在处理 `node_modules` 中的 js 文件时会直接跳过这个 rule 项，不会为这些文件执行后续的 Loader
+
+- 最小化 watch 监控范围
+  
+  在 watch 模式下(通过 `npx webpack --watch` 命令启动)，Webpack 会持续监听项目所有代码文件，发生变化时重新构建最新产物。不过，通常情况下前端项目中某些资源并不会频繁更新，例如 `node_modules` ，此时可以设置 `watchOptions.ignored` 属性忽略这些文件：
+  
+  ```js
+  module.exports = {
+    //...
+    watchOptions: {
+      ignored: /node_modules/
+    },
+  };
+  ```
+- 跳过 TS 类型检查
+  
+  类型检查涉及 AST 解析、遍历以及其它非常消耗 CPU 的操作，会给工程化流程引入性能负担，必要时开发者可选择关闭编译主进程中的类型检查功能，同步用 `fork-ts-checker-webpack-plugin` 插件将其剥离到单独进程执行，例如对于 `ts-loader` ：
+  
+  ```js
+  const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+  
+  module.exports = {
+    // ...
+    module: {
+      rules: [{
+        test: /\.ts$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true
+            }
+          }
+        ],
+      }, ],
+    },
+    plugins:[
+      new ForkTsCheckerWebpackPlugin()
+    ]
+  };
+  ```
+  
+  > 这样，既可以获得 Typescript 静态类型检查能力，又能提升整体编译速度
 
