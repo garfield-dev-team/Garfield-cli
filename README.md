@@ -276,3 +276,5 @@ commit-lint
   
   > 这样，既可以获得 Typescript 静态类型检查能力，又能提升整体编译速度
 
+> 参考：[Webpack 性能系列三：提升编译性能](https://mp.weixin.qq.com/s/0DorzMNXgk3uwVaq-DEIow)
+
