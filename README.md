@@ -276,5 +276,13 @@ commit-lint
   
   > 这样，既可以获得 Typescript 静态类型检查能力，又能提升整体编译速度
 
-> 参考：[Webpack 性能系列三：提升编译性能](https://mp.weixin.qq.com/s/0DorzMNXgk3uwVaq-DEIow)
+## 参考
+
+[Webpack Chunk 分包规则](https://juejin.cn/post/6961724298243342344)
+
+[Webpack 原理系列十：HMR 原理全解析](https://juejin.cn/post/7021729340945596424)
+
+[Webpack 性能系列三：提升编译性能](https://mp.weixin.qq.com/s/0DorzMNXgk3uwVaq-DEIow)
+
+[2021 年 TypeScript + React 工程化指南](https://zhuanlan.zhihu.com/p/403970666)
 
