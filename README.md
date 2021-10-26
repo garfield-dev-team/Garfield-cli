@@ -56,7 +56,11 @@ commit-lint
 - lerna + yarn workspace ；
 - pnpm ；
 
-> 其中 pnpm 自带单仓多包功能，不会出现依赖重复安装问题，而且解决了幽灵依赖问题，Vue3 和 Vite 都在使用。
+> 其中：
+> 
+> lerna 已经停止维护；
+> 
+> pnpm 自带单仓多包功能，不会出现依赖重复安装问题，而且解决了幽灵依赖问题，Vue3 和 Vite 都在使用；
 
 使用 npm 私服
 
@@ -73,7 +77,7 @@ commit-lint
 >
 > [大厂是如何用DevCloud流水线实现自动化部署Web应用的？](https://juejin.cn/post/6887961766170066951)
 
-插件升级方案：
+## Webpack 插件升级方案
 
 - 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules；
 - 清理目录插件：`clean-webpack-plugin` -> Webpack5 内置 `output.clean` 配置项；
@@ -83,7 +87,7 @@ commit-lint
 - 压缩 CSS 插件：`optimize-css-assets-webpack-plugin` -> `css-minimizer-webpack-plugin` (生产环境下使用) ；
 - 其他插件例如 `html-webpack-plugin` 虽然不用换，但也需要升级到支持 Webpack5 的版本；
 
-优化方案：
+## Webpack 优化方案
 
 - 区分开发环境和生产环境；
 - 环境变量默认支持三个环境：
