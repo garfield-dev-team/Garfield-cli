@@ -71,11 +71,13 @@ commit-lint
 - 执行构建命令，将构建产物输出到 `./dist` 目录；
 - 修改 `package.json` 版本号；
 - 生成 changelog ；
-- git 生成 tag 并提交源码（提交时通过 husky 校验）；
+- git 提交源码并生成 tag（提交时通过 husky 校验）；
 - 将 `package.json` 和 `README.md` 复制到 `./dist` 目录；
 - 最后执行 `npm publish` 发布；
 
 > 参考：
+> 
+> [petite-vue/scripts/release.js](https://github.com/vuejs/petite-vue/blob/main/scripts/release.js)
 > 
 > [手把手教你使用Rollup打包📦并发布自己的工具库🔧](https://juejin.cn/post/6902659492161421325)
 >
