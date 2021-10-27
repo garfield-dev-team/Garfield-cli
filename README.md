@@ -66,8 +66,12 @@ commit-lint
 
 使用构建发布脚本，通过 `npm run release` 发布 npm 包：
 
+- 使用 `semver` 获取版本号；
+- 跑一遍测试流程；
 - 执行构建命令，将构建产物输出到 `./dist` 目录；
-- 获取正确的版本号，并修改 `package.json` ；
+- 修改 `package.json` 版本号；
+- 生成 changelog ；
+- git 生成 tag 并提交源码（提交时通过 husky 校验）；
 - 将 `package.json` 和 `README.md` 复制到 `./dist` 目录；
 - 最后执行 `npm publish` 发布；
 
