@@ -83,6 +83,17 @@ commit-lint
 >
 > [大厂是如何用DevCloud流水线实现自动化部署Web应用的？](https://juejin.cn/post/6887961766170066951)
 
+使用 `open` 模块在编译完成后自动打开浏览器：
+
+- 使用 webpack-dev-server 的 `devServer.open = true` 在启动开发服务器的时候就打开浏览器，但是此时编译还没完成，所以请求一直挂着，浏览器标签页一直转圈圈，只有编译完成后才打开页面，体验比较差；
+- 使用 Vue-cli 会先进行编译，控制台会打印编译进度，编译完成后再打开浏览器，用户体验较好；
+
+> 参考：
+> 
+> [npm 之王开发的神器 open 能在启动服务时自动打开浏览器，100行源码揭秘！](https://juejin.cn/post/7026505183819464734)
+> 
+> [open - npm](https://www.npmjs.com/package/open)
+
 ## Webpack 插件升级方案
 
 - 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules；
