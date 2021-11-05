@@ -94,6 +94,14 @@ commit-lint
 > 
 > [open - npm](https://www.npmjs.com/package/open)
 
+使用单元测试：
+
+> 参考：
+> 
+> [那些年错过的React组件单元测试（上）](https://juejin.cn/post/6943430853972852750)
+> 
+> [那些年错过的React组件单元测试（下）](https://juejin.cn/post/6946008649026240519)
+
 ## Webpack 插件升级方案
 
 - 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules；
