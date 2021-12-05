@@ -102,7 +102,7 @@ commit-lint
 > 
 > [那些年错过的React组件单元测试（下）](https://juejin.cn/post/6946008649026240519)
 
-## Webpack 插件升级方案
+## Webpack 5 插件升级方案
 
 - 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules；
 - 清理目录插件：`clean-webpack-plugin` -> Webpack5 内置 `output.clean` 配置项；
@@ -115,6 +115,9 @@ commit-lint
 ## Webpack 优化方案
 
 - 区分开发环境和生产环境；
+  - 配置 Webpack 的 `mode` 选项可以使用相应模式的内置优化；
+  - `development`：会将 `DefinePlugin` 中 `process.env.NODE_ENV` 的值设置为 `development`，为模块和 chunk 启用有效的名；
+  - `production`：会将 `DefinePlugin` 中 `process.env.NODE_ENV` 的值设置为 `production`，为模块和 chunk 启用确定性的混淆名称，启用 `FlagDependencyUsagePlugin` 和 `FlagIncludedChunksPlugin`，启用 `ModuleConcatenationPlugin` 尝试进行模块合并，启用 `NoEmitOnErrorsPlugin`，启用 `TerserPlugin` 进行代码压缩（如果配置了 `optimization.usedExports` 还会进行 TreeShaking）；
 - 环境变量默认支持三个环境：
   - development: 开发环境；
   - staging: 预发布环境；
