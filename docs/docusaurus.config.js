@@ -9,7 +9,7 @@ const config = {
   title: 'Garfield CLI',
   tagline: '🔥 The web infrastructure for building modern web applications',
   url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/',
+  baseUrl: '/Garfield-cli/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
