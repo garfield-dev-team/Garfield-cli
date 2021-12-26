@@ -53,6 +53,14 @@ commit-lint
 
 使用 Webpack5 ，开发服务器使用 `express` + `webpack-dev-middleware`
 
+:::tip
+
+Webpack 配置最佳实践，除了 Vue-cli 和 CRA 源码，还可以参考 `next.js` 源码：
+
+https://github.com/vercel/next.js/blob/canary/packages/next/build/webpack-config.ts
+
+:::
+
 现在实现单仓多包方案主要有：
 
 - lerna + yarn workspace ；
