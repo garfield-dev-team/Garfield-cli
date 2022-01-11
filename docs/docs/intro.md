@@ -41,7 +41,49 @@ purgecss-config
 commit-lint
 ```
 
-如果使用自定义的脚手架工具，不仅可以支持自定义 Webpack 配置，还可以增加不同的项目模板，同时支持 React 和 Vue 项目，此外还提供开箱即用的配置，例如 React 状态管理库不仅配置麻烦，使用也很麻烦，所以干脆封装成了一个依赖库，支持热插拔，一个命令即可为项目赋能。
+如果使用自定义的脚手架工具，不仅可以支持自定义 Webpack 配置，还可以增加不同的项目模板，同时支持 React 和 Vue 项目，参考下尤大的 `create-vite`：
+
+```js
+const templateDir = path.join(__dirname, `template-${template}`)
+
+const write = (file, content) => {
+  const targetPath = renameFiles[file]
+    ? path.join(root, renameFiles[file])
+    : path.join(root, file)
+  if (content) {
+    fs.writeFileSync(targetPath, content)
+  } else {
+    copy(path.join(templateDir, file), targetPath)
+  }
+}
+
+const files = fs.readdirSync(templateDir)
+for (const file of files.filter((f) => f !== 'package.json')) {
+  write(file)
+}
+```
+
+注意这里有两个文件要处理下，一个是给 `package.json` 修改包名：
+
+```js
+const pkg = require(path.join(templateDir, `package.json`))
+
+pkg.name = packageName || targetDir
+
+write('package.json', JSON.stringify(pkg, null, 2))
+```
+
+还有是 `.gitignore` 修改文件名：
+
+```js
+const renameFiles = {
+  _gitignore: '.gitignore'
+}
+```
+
+> https://github.com/vitejs/vite/blob/main/packages/create-vite/index.js
+
+此外还提供开箱即用的配置，例如 React 状态管理库不仅配置麻烦，使用也很麻烦，所以干脆封装成了一个依赖库，支持热插拔，一个命令即可为项目赋能。
 
 ## 项目特点
 
