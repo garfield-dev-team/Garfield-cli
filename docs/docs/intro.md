@@ -27,6 +27,9 @@ react-ts-template
 vue-template
 vue-ts-template
 
+// npm 包模板
+npm-package
+
 // 构建脚本
 garfield-script
 
