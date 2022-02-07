@@ -4,7 +4,9 @@ sidebar_position: 3
 
 # 开发环境启用 HMR
 
-开发环境启用热更新，使用 `react-refresh-webpack-plugin` 热更新 react 组件:
+开发环境启用热更新，使用 `react-refresh-webpack-plugin` 热更新 react 组件。
+
+> `webpack-dev-server` 默认只有 live-reload 功能，需要使用额外的热更新插件实现热模块替换（即实现 `module.hot.accept` 接口）
 
 安装:
 
