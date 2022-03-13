@@ -123,6 +123,25 @@ https://github.com/vercel/next.js/blob/canary/packages/next/build/webpack-config
 
 :::
 
+使用 pnpm 作为包管理工具
+
+基本用法：
+
+- `pnpm add <pkg>`：安装依赖
+- `pnpm add -D <pkg>`：安装依赖到 devDependencies
+- `pnpm install`：安装所有依赖
+- `pnpm -r update`：递归更新每个包的依赖
+- `pnpm -r update typescript@latest`：将每个包的 typescript 更新为最新版本
+- `pnpm remove`：移除依赖
+
+如何支持 monorepo 项目：https://pnpm.io/zh/workspaces
+
+`pnpm -r` 带一个参数 `-r` 表示进行递归操作。
+
+[pnpm 官方文档](https://pnpm.io/zh/)
+
+[为什么 vue 源码以及生态仓库要迁移 pnpm?](https://juejin.cn/post/7038192011882528776)
+
 使用 npm 私服
 
 使用构建发布脚本，通过 `npm run release` 发布 npm 包：
