@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[797],{2213:function(l){l.exports=JSON.parse('{"allTagsPath":"/Garfield-cli/blog/tags","slug":"/Garfield-cli/blog/tags/hello","name":"hello","count":2,"permalink":"/Garfield-cli/blog/tags/hello"}')}}]);

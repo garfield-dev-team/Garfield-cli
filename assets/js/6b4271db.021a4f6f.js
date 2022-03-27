@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[7260],{9259:function(s){s.exports=JSON.parse('{"allTagsPath":"/Garfield-cli/blog/tags","name":"docusaurus","count":4,"permalink":"/Garfield-cli/blog/tags/docusaurus"}')}}]);
