@@ -40,7 +40,8 @@ RUN npm install && npm run build && npm install -g http-server
 # 暴露 80 端口
 EXPOSE 80
 
-# 启动静态服务
+# 启动容器时默认执行的命令，启动静态服务
+# 也可以使用 ENTRYPOINT，会覆盖 CMD
 CMD ["http-server", "./build", "-p", "80"]
 ```
 
@@ -183,6 +184,36 @@ deepred5/react-app 镜像有 1G 多，而 deepred5/react-app-multi 只有 20 多
 
 > 主要原因是：deepred5/react-app 的基础镜像 node:14-alpine 就有 900M，而 deepred5/react-app-multi 的基础镜像 nginx:alpine 只有 20M。由此可见多层构建对于减少镜像大小是非常有帮助的
 
+实际项目使用的 Dockerfile 参考：
+
+```dockerfile
+# 两段式构建
+# 第一段构建源码镜像
+ARG PROJECT_DIR=/project
+ARG BB_ENV=prod
+FROM harbor.hiktest.com/public/vue:2.5-node10 as src
+ARG PROJECT_DIR
+ARG BB_ENV
+
+
+COPY . ${PROJECT_DIR}/
+WORKDIR ${PROJECT_DIR}/
+
+RUN npm install && npm run build:${BB_ENV}
+
+
+# 第二段从源码镜像中拷贝出编译的dist，做成目标镜像
+FROM harbor.hiktest.com/hikvision/nginx:1.12
+ARG PROJECT_DIR
+
+ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+COPY --from=src ${PROJECT_DIR}/dist /usr/share/nginx/html/
+COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./default.conf /etc/nginx/conf.d/default.conf
+```
+
 ## 使用对象存储服务 (OSS)
 
 分析一下 50M+ 的镜像体积，`nginx:alpine` 的镜像是 16M，剩下的 40M 是静态资源。生产环境的静态资源往往会上传到 CDN 上，在独立域名上维护。
@@ -221,6 +252,20 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder code/build/index.html code/public/favicon.ico /usr/share/nginx/html/
 COPY --from=builder code/build/static /usr/share/nginx/html/static
 ```
+
+## 不使用服务器部署静态页面
+
+**打包构建**
+
+使用 GitHub Action 作为 CI 环境，使用 Docker 进行构建，充分利用缓存，如 `package.json` 没变就不重复装包。
+
+**部署**
+
+打包之后将静态资源上传至阿里云 OSS（需要配置 Webpack 的 `output.publicPath`），提升页面加载速度。
+
+HTML 页面暂时可以不上传，使用 GitHub Page 托管，这样访问速度可以保证，但是不能解决 GitHub Page 偶尔会挂的问题。还是要将 HTML 页面上传（`Cache-Control:no-cache`），此时整个网站完全托管在阿里云 OSS 上面，需要域名备案。
+
+> OSS 可以解决资源缓存问题，能否解决历史模式路由重定向和后端接口代理
 
 ## 总结
 
