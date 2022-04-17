@@ -255,17 +255,52 @@ COPY --from=builder code/build/static /usr/share/nginx/html/static
 
 ## 不使用服务器部署静态页面
 
+### 1) 静态页面托管
+
 **打包构建**
 
-使用 GitHub Action 作为 CI 环境，使用 Docker 进行构建，充分利用缓存，如 `package.json` 没变就不重复装包。
+使用 GitHub Action 作为 CI 环境，使用 `actions/cache@v3` 缓存 node_modules，如 `yarn.lock` 没变就不重复装包。
 
 **部署**
 
-打包之后将静态资源上传至阿里云 OSS（需要配置 Webpack 的 `output.publicPath`），提升页面加载速度。
+打包之后将静态资源上传至阿里云 OSS 或者静态网站托管平台上，提升页面加载速度。
 
-HTML 页面暂时可以不上传，使用 GitHub Page 托管，这样访问速度可以保证，但是不能解决 GitHub Page 偶尔会挂的问题。还是要将 HTML 页面上传（`Cache-Control:no-cache`），此时整个网站完全托管在阿里云 OSS 上面，需要域名备案。
+此时分为两种情况：
 
-> OSS 可以解决资源缓存问题，能否解决历史模式路由重定向和后端接口代理
+- 静态页面，由于每个页面路由都已经预渲染出对应的 html 文件，因此可以直接将 html 文件也进行上传（顺便搭配 CDN 加速）
+- SPA 应用，不能上传 html，否则刷新页面就会出现 404 的问题，只能上传静态资源，需要配置 Webpack 的 `output.publicPath`
+
+<!-- HTML 页面暂时可以不上传，使用 GitHub Page 托管，这样访问速度可以保证，但是不能解决 GitHub Page 偶尔会挂的问题。还是要将 HTML 页面上传（`Cache-Control:no-cache`），此时整个网站完全托管在阿里云 OSS 上面，需要域名备案。
+
+> OSS 可以解决资源缓存问题，能否解决历史模式路由重定向和后端接口代理 -->
+
+### 2) 容器托管
+
+对于 SPA 应用，所有的静态资源都可以上传 CDN，但是 html 文件还得自己部署。建议使用 Docker 容器，将 Nginx 和 html 入口文件打包成一个镜像，然后在服务器上拉取镜像并执行就好。
+
+我们每次代码更新后都要手动去执行镜像构建、关闭老容器、启动新容器，非常麻烦，而且没法对容器进行统一的管理。所以更方便的方式是使用云服务商提供的容器托管平台，可以实现自动化构建以及发布版本化等一系列强大的功能。
+
+## 不使用服务器部署后端项目
+
+### 1) 容器托管
+
+如果你使用 SpringBoot 框架开发，打包之后得到的是 jar 包，内置了 tomcat 等 web 服务器，因此只需要用一行命令启动 jar 包即可：
+
+```bash
+$ nohup java -jar app.jar --spring.profiles.active=prod &
+```
+
+使用 Docker 容器技术，理论上可以封装任何环境和应用，对于后端 Java 项目来说，把 Java 环境、Maven 和 jar 包封装成一个镜像就好了。
+
+在写 Dockerfile 时，可以直接使用 `maven:3.5-jdk-8-alpine` 这种基础镜像，自带了 jdk 和 maven，省去了自己写安装脚本的麻烦。
+
+当然，有需要的话，你还可以在 Java 容器前加个 Nginx 负载均衡：
+
+![image](/img/tomcat_docker.png)
+
+### 2) Serverless 云函数
+
+对于一些小项目，可以直接用 **Serverless 云函数** + **云数据库** + **云存储**，免去运维成本。
 
 ## 总结
 
