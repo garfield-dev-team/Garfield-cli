@@ -117,7 +117,110 @@ location ^~ /prod-api/ {
 }
 ```
 
-## 4. 缓存策略
+## 4. mime type 的问题
+
+问题4：资源都加载成功，但是页面没有样式。
+
+看了下控制台的 network 面板，好家伙，不管 JS 还是 CSS 资源，服务器响应的 `Content-Type` 统统都是 `text/plain`。
+
+nginx 默认的 `nginx.conf` 配置中已经有 mime type 的配置，但如果有时候把这个配置删掉了，就需要自己配置：
+
+```bash
+user  root;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    # 默认的 mime 配置
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    # 加载 server 配置
+    include /etc/nginx/conf.d/*.conf;
+}
+```
+
+## 5. 开启 gzip
+
+静态资源服务器一般都会配置报文压缩算法，用于减小网络传输的资源体积。一般常见的报文压缩算法有 `gzip`、`deflate` 等等。
+
+如需开启 gzip，只需在 http 块中配置：
+
+```bash
+# 开启gzip
+gzip on;
+# 低于1kb的资源不压缩 
+gzip_min_length 1k;
+# 压缩文件使用缓存空间的大小，大小为 number*size
+gzip_buffers 4 16k;
+# gzip_http_version 1.0;
+# 压缩级别 1-9，越大压缩率越高，同时消耗的 CPU 资源也越多
+gzip_comp_level 4;
+# 需要压缩哪些响应类型的资源，不建议压缩图片（图片压缩效果不明显，而且消耗 CPU）
+gzip_types text/plain application/x-javascript text/css application/xml text/javascript application/x-httpd-php application/javascript application/json;
+# 用于设置是否发送带有 Vary:accept-encoding 头部的响应头，告诉接收方是否经过了压缩
+gzip_vary off;
+# IE 1-6 关闭 gzip 压缩（版本太低不支持）
+gzip_disable "MSIE [1-6]\.";
+```
+
+这里提一下，2015 年谷歌推出了 Brotli 压缩算法，通过变种的 LZ77 算法、Huffman 编码以及二阶文本建模等方式进行数据压缩，与其他压缩算法相比，它有着更高的压缩效率，性能也比我们目前常见的 Gzip 高 17-25%，可以帮我们更高效的压缩网页中的各类文件大小及脚本，从而提高加载速度，提升网页浏览体验。除了 IE 和 Opera Mini 之外，几乎所有的主流浏览器都已支持 Brotli 算法：
+
+![image](/img/brotli.png)
+
+## 6. 开启 HTTP/2
+
+环境要求
+- Nginx 的版本必须在 1.9.5 以上，该版本的 Nginx 使用 http_v2_module 模块替换了 ngx_http_spdy_module；
+- 开启 https 加密，目前 http2.0 只支持开启了 https 的网站；
+- openssl 的版本必须在 1.0.2e 及以上；
+
+nginx 配置：
+
+```bash
+server {
+    # 开启 http2 主要就是这里
+    listen  443 ssl http2;
+    server_name  www.example.com;
+    ssl_certificate     /opt/cert/3823818_www.example.com.pem;
+    ssl_certificate_key /opt/cert/3823818_www.example.com.key;
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+
+    location / {
+        proxy_pass https://127.0.0.1:9999;
+        proxy_set_header Host $host;
+    }
+}
+```
+
+除了 IE 和 Opera Mini 之外，几乎所有的主流浏览器都已支持 HTTP/2：
+
+![image](/img/http2.png)
+
+## 7. 缓存策略
 
 除了匹配请求路径访问对应文件之外，还需要配置合理的缓存策略，提升资源二次加载性能。由于 Webpack 打包会给静态资源加上哈希值，因此可以合理配置缓存规则，提升用户体验：
 
@@ -130,7 +233,7 @@ location ^~ /prod-api/ {
 
 :::
 
-## 5. location 匹配优先级
+## 8. location 匹配优先级
 
 再注意下 `location` 的匹配优先级规则：
 
@@ -149,7 +252,7 @@ nginx 每条规则都要以分号结尾，可以运行 `nginx -tc nginx.conf` �
 
 :::
 
-## 5. 完整的 nginx 配置
+## 9. 完整的 nginx 配置
 
 ```bash
 server {
@@ -190,7 +293,7 @@ server {
 }
 ```
 
-## 6. 总结
+## 10. 总结
 
 单页应用历史模式路由，如果不是根路径，请求服务器都会响应 404，需要在服务器端配置 `try_files` 按顺序进行匹配，其中请求页面路由命中 `/index.html` 规则，请求静态资源命中 `$uri` 规则。
 
