@@ -20,19 +20,22 @@ jobs:
         with:
           node-version: 14
           registry-url: https://registry.npmmirror.com/
-          # cache: yarn
       - name: Cache node_modules
         uses: actions/cache@v3
         id: cache
         with:
-          path: node_modules
+          path: docs/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
           restore-keys: ${{ runner.os }}-node-
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn install --production --frozen-lockfile
+        run: |
+          cd docs
+          yarn install --production --frozen-lockfile
       - name: Build
-        run: yarn build
+        run: |
+          cd docs
+          yarn build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
