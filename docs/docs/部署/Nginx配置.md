@@ -237,6 +237,26 @@ server {
 
 :::
 
+如何禁用缓存，配置如下响应头即可关闭缓存：
+
+```bash
+Cache-Control: no-store
+```
+
+如何配置协商缓存：
+
+```bash
+Cache-Control: no-cache
+# 或者
+Cache-Control: max-age=0, must-revalidate
+```
+
+注意，如果服务器关闭或失去连接，下面的指令可能会造成使用缓存：
+
+```bash
+Cache-Control: max-age=0
+```
+
 ## 8. location 匹配优先级
 
 再注意下 `location` 的匹配优先级规则：
