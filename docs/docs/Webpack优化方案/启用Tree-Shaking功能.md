@@ -163,6 +163,44 @@ module.exports = {
 
 此外，本人猜测还有另外一个原因。Babel 在 ESM 转为 CJS 的时候，不仅仅只是模块规范转换，还会进行 `esModuleInterop` 操作，简单来说，就是支持合成默认导入。在前端项目开发时，使用 ESM 的 default import 语法引入了 CJS 的模块，由于 CJS 模块没有默认导出内容，因此需要通过我们的工具去自动化合成 CJS 的默认导出，以支持在 ESM 下流畅开发。如果配置 `modules: false` 相当于关闭了 `esModuleInterop` 转换，如果业务代码使用 `import React from "react"` 语法在打包的时候会报错。
 
+我们可以做个试验，测验代码如下：
+
+```jsx
+import React from "react";
+
+const App = () => {
+  return <div>Hello World</div>;
+}
+```
+
+正常编译之后结果如下：
+
+```jsx
+"use strict";
+
+var _react = _interopRequireDefault(require("react"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var App = function App() {
+  return /*#__PURE__*/_react["default"].createElement("div", null, "Hello World");
+};
+```
+
+启用 `modules: false` 配置之后编译结果如下：
+
+```jsx
+import React from "react";
+
+var App = function App() {
+  return /*#__PURE__*/React.createElement("div", null, "Hello World");
+};
+```
+
+那么很显然，后一种做法，由于 `react` 本身并没有配置默认导出，我们在业务代码中使用默认导入，打包的时候肯定会报错。所以实际上配置 `modules: false` 是一种不安全的做法，侵入性大，会对原有逻辑造成影响。
+
+综上，前端业务工程的代码基本不太可能 Tree-Shaking，只有少部分 Babel 不进行处理的第三方库，例如 `vue`、`react` 等框架的运行时代码，才有可能 Tree-Shaking。
+
 :::
 
 ### 4) 优化导出值的粒度
