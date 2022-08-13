@@ -398,6 +398,10 @@ server {
 
 `location` 匹配的优先级规则注意下。
 
+## 12. 推荐阅读
+
+[Nginx的这些妙用，你肯定有不知道的！](https://juejin.cn/post/6844904017286561799)
+
 ## 参考
 
 [前端到底用nginx来做啥](https://juejin.cn/post/7064378702779891749)
