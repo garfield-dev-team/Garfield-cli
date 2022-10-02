@@ -261,8 +261,9 @@ COPY --from=builder code/build/static /usr/share/nginx/html/static
 - 镜像中需要锁定 `node` 的版本号，尽可能也锁定 `alpine` 的版本号，如 `node:10.19-alpine3.11`。(我示例代码中未如此详细地指出)
 - 选择合适的环境变量 `NODE_ENV` 及 `PROJECT_ENV`，如在测试环境下进行构建
 - npm ci 替代 npm i，避免版本问题及提高依赖安装速度
-- `package.json`/`package-lock.json` 单独添加，充分利用镜像缓存
+- 充分利用镜像缓存。对于 `ADD` 和 `COPY` 指令，Docker 会对比文件内容计算 checksum；对于 `RUN` 指令，Docker 仅仅比较命令字符串。因此如果 `package.json`/`package-lock.json` 单独添加，假设内容没有变化，那么后续的 `yarn install` 就不会执行，可以节省大量时间
 - 使用多阶段构建，在 node 环境中构建，在 nginx 环境中提供服务，减小镜像体积
+- 每个 `RUN`、`COPY`、`ADD` 指令都会引入一层新的 layer，进而增加镜像的体积。建议尽可能将指令合并为一个，例如 `RUN yarn install && yarn build`
 - 如有必要，静态资源请上 CDN
 
 ## 参考
