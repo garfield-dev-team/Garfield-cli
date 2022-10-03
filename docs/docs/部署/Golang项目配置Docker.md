@@ -4,6 +4,8 @@ sidebar_position: 5
 
 # Golang 项目配置 Docker
 
+## 1. Dockerfile 最佳实践
+
 ```dockerfile
 # 指定基础镜像的版本，确保每次构建都是幂等的
 FROM golang:1.18-alpine3.15 AS builder
@@ -51,6 +53,254 @@ scratch 是一个虚拟镜像，不能被 pull，也不能运行，因为它表�
 如果有调试需求，折中一下可以选择 busybox 或 alpine 镜像来替代 scratch，虽然它们多了那么几 MB，但从整体来看，这只是牺牲了少量的空间来换取调试的便利性，还是很值得的。
 
 :::
+
+## 2. Docker 常用命令
+
+### 1) 常用命令
+
+```bash
+# 查找镜像
+$ docker search ubuntu
+
+# 拉取特定 tag 版本的镜像（如果不指定 tag 默认是 latest）
+$ docker pull golang:latest
+
+# 查看下载的所有本地镜像
+$ docker images
+
+# 删除镜像
+$ docker rmi ubuntu:18.0.4
+```
+
+### 2) 构建镜像
+
+我们一般都是基于基础镜像来构建个人镜像。镜像是 Dockerfile 由一条条指令构建出来。
+
+基于这个 Dockerfile 创建我们自己的镜像：
+
+```bash
+$ docker build -t garfield/go-service:1.0 .
+```
+
+> 注意最后有一个 `.`
+
+查看刚才构建的镜像：
+
+```bash
+$ docker images
+
+REPOSITORY            TAG       IMAGE ID       CREATED          SIZE
+garfield/go-service   1.0       ae23dd67996c   15 seconds ago   6.19MB
+golang                latest    c5e98f0fcc5e   2 weeks ago      842MB
+nginx                 latest    fd3d31a07ae6   6 months ago     134MB
+```
+
+运行容器：
+
+```bash
+# 交互式运行
+$ docker run --rm -it garfield/go-service:1.0 --name web_server -p 8080:8080 /bin/bash
+
+# 守护式运行
+$ docker run -d --name web_server -p 8080:8080 garfield/go-service:1.0 
+```
+
+参数说明：
+
+- `-i`：允许你对容器内的标准输入 (STDIN) 进行交互
+- `-t`：在新容器内指定一个伪终端或终端
+- `/bin/bash`：启动容器后立即执行的命令（交互式运行传递，守护式运行不需要）
+
+
+- `-d`：守护式运行
+
+
+- `-v`：允许我们挂载多个本地目录或者数据卷到容器中
+- `-p`：指定主机和容器的端口映射（例如 `8888:80` 表示把本地的 8888 端口映射到容器的 80 端口）
+- `--rm`：指定容器退出后自动移除容器
+- `--name`：容器的名字，默认是随机的名字
+
+```bash
+# 停止容器
+$ docker stop my-ubuntu
+
+# 启动容器
+$ docker start my-ubuntu
+
+# 删除容器
+$ docker rm my-ubuntu
+
+# 删除所有容器
+$ docker rm `docker ps -aq`
+
+# 查看正在运行的容器
+$ docker ps
+
+# 查看所有创建过的容器(运行或者关闭)
+$ docker ps -a
+```
+
+进入正在运行的容器：
+
+```bash
+$ docker exec -it my-ubuntu /bin/bash
+```
+
+### 3) 上传镜像
+
+我们本地构建的镜像如果希望可以被其他人使用，就需要把镜像上传到仓库。登录dockerhub，注册一个账户。
+
+```bash
+# 登入账户，输入用户名和密码
+$ docker login
+
+# 上传镜像
+$ docker push garfield/go-service:1.0
+```
+
+> 注意：`garfield/go-service:1.0` 改成 `[你的用户名]/go-service:[版本号]`，你需要重新构建一个镜像，然后才能上传到 dockerhub
+
+### 4) 容器运行的两种方式
+
+- 交互式运行（`-it`）
+- 守护式运行（没有交互式会话，长期运行，适合运行应用程序和服务）（`-d`）
+
+大部分情况都是运行守护式容器（daemonized container）
+
+```bash
+# 启动了容器，然后容器立即关闭
+$ docker run ubuntu /bin/bash
+
+# 启动了容器，并开启了交互式的终端，只有输入exit才退出终端，退出终端后，容器仍然在后台运行
+$ docker run -it ubuntu /bin/bash
+
+# 启动了容器，并且在后台一直运行，每隔1s输出hello world
+$ docker run -d ubuntu /bin/sh -c "while true; do echo hello world; sleep 1; done"
+```
+
+### 5) 查看容器日志
+
+```bash
+$ docker run -d --name my_container ubuntu /bin/sh -c "while true; do echo hello world; sleep 1; done"
+
+# 查看后台运行的日志
+$ docker logs my_container
+
+# 实时监控(类似tail -f)
+$ docker logs -f my_container
+
+# 获取最后10行
+$ docker logs --tail 10 my_container
+
+# 实时查看最近的日志
+$ docker logs --tail 0 -f my_container
+
+# 加上时间戳
+$ docker logs -t my_container
+```
+
+### 6) 用 docker-compose 管理容器
+
+每次都用 docker 命令启动容器太费事，而且如果有多个容器，启动就变得非常复杂了！
+
+这时，就需要docker compose出场了。
+
+在项目根目录建一个 `docker-compose.yml`：
+
+```yaml
+version: '3.7'
+
+services:
+  db:
+    image: redis
+    restart: always
+    ports:
+      - 6389:6379
+    networks:
+      - app-test
+
+  web_server:
+    image: garfield/go-service:1.0
+    restart: always
+    depends_on:
+      - db
+    # 配置挂载
+    volumes:
+      - $PWD:/go/src/examplecom/http_demo
+    ports:
+      - "8080:8080"
+    # 指定 network
+    networks:
+      - app-test
+    # 容器启动需要执行的命令
+    # command: /bin/bash
+  
+  web_ui:
+    image: garfield/react-app:1.0
+    restart: always
+    depends_on:
+      - web_server
+    ports:
+      - "8066:8066"
+    # 指定 network
+    networks:
+      - app-test
+
+networks:
+  app-test:
+    driver: bridge
+```
+
+启动所有容器：
+
+```bash
+$ docker-compose up -d
+```
+
+我们可以查看一下刚才启动容器的日志：
+
+```bash
+# 查看正在运行的容器 ID
+$ docker ps
+
+CONTAINER ID   IMAGE                     COMMAND    CREATED         STATUS         PORTS                    NAMES
+3c5bf9ed2bb3   garfield/go-service:1.0   "./main"   3 minutes ago   Up 3 minutes   0.0.0.0:8080->8080/tcp   go-service-demo_web_server_1
+
+# 根据容器 ID 实时查看容器日志
+$ docker logs -f 3c5bf9ed2bb3
+
+2022/10/03 13:15:44 Starting server at :8080
+2022/10/03 13:16:31 Method: "GET" RequestURI: "/"
+2022/10/03 13:16:32 Method: "GET" RequestURI: "/favicon.ico"
+```
+
+代码有修改后，需要重新编译项目，针对我们的容器执行下面的命令即可
+
+```bash
+$ docker-compose restart
+```
+
+想要进入运行的容器中执行操作使用命令：
+
+```bash
+$ docker exec it <container name> bash
+```
+
+给我们创建的 `app` 发送 `go test` 命令让它在容器内执行：
+
+```bash
+$ docker-compose exec app go test
+```
+
+停止所有容器：
+
+```bash
+$ docker-compose stop
+```
+
+> 注意，docker-compose 仅用于本地开发环境，线上需要部署到 K8S 集群
+
+## 3. Golang 交叉编译
 
 Go 提供了编译链工具，可以让我们在任何一个开发平台上，编译出其他平台的可执行文件（默认情况下，都是根据我们当前的机器生成的可执行文件）。
 
