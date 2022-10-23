@@ -4,9 +4,19 @@ sidebar_position: 6
 
 # Docker 镜像构建最佳实践
 
-![image](/img/docker-best-practice.png)
+## Node.js Docker 镜像构建最佳实践
 
-## TL;DR
+当你在编写 DockerFile 时会忽略 `FROM node` 的含义，作者分享了一些对于版本选择上的考虑。
+
+[Choosing the best Node.js Docker image](https://snyk.io/blog/choosing-the-best-node-js-docker-image/)
+
+![image](/img/nodejs_docker_image_best_practice.png)
+
+[10 best practices to containerize Node.js web applications with Docker](https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/)
+
+## Java Docker 镜像构建最佳实践
+
+![image](/img/docker-best-practice.png)
 
 - 使用确定性的 Docker 基础镜像标签
 - 在 Java 容器镜像中仅安装在生产中需要的内容
