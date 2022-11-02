@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Webpack 5 插件升级方案
+# Webpack 5 升级方案
 
 - 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules；
 - 清理目录插件：`clean-webpack-plugin` -> Webpack5 内置 `output.clean` 配置项；
@@ -11,3 +11,7 @@ sidebar_position: 2
 - 抽取 CSS 插件：`extract-text-webpack-plugin` -> `mini-css-extract-plugin` (生产环境下使用，开发环境下为了让样式源文件也能被热替换，不能抽取样式，而是随 JS Bundle 一起输出) ；
 - 压缩 CSS 插件：`optimize-css-assets-webpack-plugin` -> `css-minimizer-webpack-plugin` (生产环境下使用) ；
 - 其他插件例如 `html-webpack-plugin` 虽然不用换，但也需要升级到支持 Webpack5 的版本；
+
+## 参考
+
+[极致编译速度，一文搞定webpack5升级](https://juejin.cn/post/7161303856943464455)
