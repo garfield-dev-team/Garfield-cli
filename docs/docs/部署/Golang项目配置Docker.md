@@ -18,7 +18,7 @@ RUN go mod download
 
 COPY . ./
 # Compile project
-RUN CGO_ENABLED=0 GOOS=linux go build -a -o main .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main .
 
 # 使用体积更小的基础镜像
 # FROM alpine:3.15 AS production
@@ -102,7 +102,7 @@ nginx                 latest    fd3d31a07ae6   6 months ago     134MB
 $ docker run --rm -it garfield/go-service:1.0 --name web_server -p 8080:8080 /bin/bash
 
 # 守护式运行
-$ docker run -d --name web_server -p 8080:8080 garfield/go-service:1.0 
+$ docker run -d --name web_server -p 8080:8080 garfield/go-service:1.0
 ```
 
 参数说明：
@@ -234,7 +234,7 @@ services:
       - app-test
     # 容器启动需要执行的命令
     # command: /bin/bash
-  
+
   web_ui:
     image: garfield/react-app:1.0
     restart: always
