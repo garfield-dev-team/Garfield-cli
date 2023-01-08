@@ -125,7 +125,7 @@ module.exports = {
 }
 ```
 
-需要注意的是，CRA 的 Babel 配置是针对前端业务工程的，所以个人建议最好还是熟悉、掌握 Babel 配置。另外，值得注意的是 CRA 的 Webpack 配置中对 `babel-loader` 也配置了缓存。我们知道 Webpack 5 开箱即用自带 filesystem cache，但实际上这个缓存的粒度比较大，如果给 Babel 也配置缓存，相当于设置多级缓存，能够提升缓存复用率。
+需要注意的是，CRA 的 Babel 配置是针对前端业务工程的，所以个人建议最好还是熟悉、掌握 Babel 配置。另外，值得注意的是 CRA 的 Webpack 配置中对 `babel-loader` 也配置了缓存。我们知道 Webpack 5 开箱即用自带 filesystem cache，但实际上这个缓存的粒度比较大，当 `cache.buildDependencies` 配置的文件内容发生变化（例如 `webpack.config.js`、`babel.config.js`、`tsconfig.json` 等），缓存会完全失效而执行完整的编译构建。如果给 Babel 也配置缓存，相当于设置多级缓存，能够提升缓存复用率。
 
 ```js
 module.exports = {
