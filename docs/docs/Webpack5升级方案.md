@@ -14,7 +14,7 @@ sidebar_position: 2
 
 ## 插件升级方案
 
-- 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules；
+- 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules（值有四种，`asset/resource` 对应 `file-loader`、`asset/inline` 对应`url-loader`、`asset/source` 对应 `raw-loader`、`asset` 根据资源大小自动选择 `resource` 或者 `inline`）；
 - 清理目录插件：`clean-webpack-plugin` -> Webpack5 内置 `output.clean` 配置项；
 - 热更新插件：`HotModuleReplacementPlugin` -> Webpack5 配置 `devServer.hot = true` 时自动启用；
 - 代码压缩插件：`uglify-js-webpack-plugin` -> Webpack5 内置 `terser-webpack-plugin` (生产环境下使用，移除代码中的 `debugger` 和 `console.*`) ；
@@ -26,9 +26,8 @@ sidebar_position: 2
 - `HashedModuleIdsPlugin` ->  Webpack5 内置 `optimization.moduleIds: 'hashed'`
 - `optimization.splitChunks.cacheGroups.vendors` -> `optimization.splitChunks.cacheGroups.defaultVendors`
 - Rule.loaders -> Rule.use（注意 loaders 已经废弃了，但是 loader 还是可用的，相当于 Rule.use: [ { loader } ] 简写）
+- 本地开发命令：`webpack-cli` 支持 `webpack serve` 启动 devServer
 - 其他插件例如 `html-webpack-plugin` 虽然不用换，但也需要升级到支持 Webpack5 的版本；
-
-##
 
 ## 参考
 
