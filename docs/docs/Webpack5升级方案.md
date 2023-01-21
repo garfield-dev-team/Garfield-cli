@@ -23,7 +23,7 @@ sidebar_position: 2
 - 压缩 CSS 插件：`optimize-css-assets-webpack-plugin` -> `css-minimizer-webpack-plugin` (生产环境下使用) ；
 - `NamedModulesPlugin` ->  Webpack5 内置 `optimization.moduleIds: 'named'`
 - `NamedChunksPlugin` ->  Webpack5 内置 `optimization.chunkIds: 'named'`
-- `HashedModuleIdsPlugin` ->  Webpack5 内置 `optimization.moduleIds: 'hashed'`
+- `HashedModuleIdsPlugin` ->  Webpack5 不再需要，改为内置 `optimization.moduleIds: 'deterministic'`（生产环境默认启用）
 - `optimization.splitChunks.cacheGroups.vendors` -> `optimization.splitChunks.cacheGroups.defaultVendors`
 - Rule.loaders -> Rule.use（注意 loaders 已经废弃了，但是 loader 还是可用的，相当于 Rule.use: [ { loader } ] 简写）
 - 本地开发命令：`webpack-cli` 支持 `webpack serve` 启动 devServer
