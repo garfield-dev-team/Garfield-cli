@@ -169,7 +169,7 @@ module.exports = {
     // 清空打包输出目录
     clean: true,
   },
-  stats: "errors-only",
+  stats: "errors-warnings",
   module: {
     rules: [
       {
