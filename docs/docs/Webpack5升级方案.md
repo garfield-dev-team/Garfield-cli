@@ -146,7 +146,12 @@ const Webpackbar = require('webpackbar');
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const appPath = process.cwd();
-const outputDir = path.resolve(appPath, "dist");
+const appBuild = path.resolve(appPath, "dist");
+const appSrc = path.resolve(appPath, "src");
+const appTsConfig = path.resolve(appPath, "tsconfig.json");
+const appNodeModules = path.resolve(appPath, "node_modules");
+const appWebpackCache = path.resolve(appPath, "node_modules/.cache");
+const appTsBuildInfoFile = path.resolve(appPath, "node_modules/.cache/tsconfig.tsbuildinfo");
 
 const isEnvDevelopment = process.env.NODE_ENV === "development";
 const isEnvProduction = process.env.NODE_ENV === "production";
@@ -163,7 +168,7 @@ module.exports = {
   },
   output: {
     // 打包产物的文件夹
-    path: outputDir,
+    path: appBuild,
     // JS 资源用 contenthash，提升缓存复用率
     filename: "static/js/[name].[contenthash:8].js",
     // 基于 Code-Splitting 分包的异步 chunk
@@ -188,7 +193,7 @@ module.exports = {
             include: [
               // 最小化 loader 作用范围
               // 如果有第三方库代码用了 ES6 语法，需要单独添加 babel-loader 处理
-              path.resolve(appPath, 'src'),
+              appSrc,
               path.resolve(appPath, 'node_modules/@study/common-ykt-puzzles/'),
             ],
             // babel 配置参考：前端项目 Babel 配置
@@ -322,11 +327,11 @@ module.exports = {
   },
   resolve: {
     // 限制第三方库搜索范围，关闭逐层搜索功能
-    modules: [path.resolve(appPath, 'node_modules')],
+    modules: [appNodeModules],
     // 代码中尽量补齐文件后缀名，减少匹配次数
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.wasm'],
     alias: {
-      "@": path.resolve(appPath, "src"),
+      "@": appSrc,
     },
     // Webpack5 不再提供 Node polyfill，如果用到这些模块需要单独安装
     fallback: {
@@ -337,16 +342,16 @@ module.exports = {
   },
   cache: {
     type: 'filesystem',
-    cacheDirectory: path.resolve(appPath, 'node_modules/.cache'),
+    cacheDirectory: appWebpackCache,
     store: 'pack',
     buildDependencies: {
       defaultWebpack: ['webpack/lib/'],
       config: [__filename],
-      tsconfig: [path.resolve(appPath, "tsconfig.json")],
+      tsconfig: [appTsConfig],
     },
   },
   devServer: {
-    static: outputDir,
+    static: appBuild,
     compress: true,
     // `hot: true` 自动应用 `HotModuleReplacementPlugin` 插件
     hot: true,
@@ -398,7 +403,7 @@ module.exports = {
       async: isEnvDevelopment,
       typescript: {
         typescriptPath: resolve.sync('typescript', {
-          basedir: path.resolve(appPath, "node_modules"),
+          basedir: appNodeModules,
         }),
         configOverwrite: {
           compilerOptions: {
@@ -408,7 +413,7 @@ module.exports = {
             declarationMap: false,
             noEmit: true,
             incremental: true,
-            tsBuildInfoFile: path.resolve(appPath, "node_modules/.cache/tsconfig.tsbuildinfo"),
+            tsBuildInfoFile: appTsBuildInfoFile,
           },
         },
         context: appPath,
@@ -448,7 +453,7 @@ module.exports = {
         eslintPath: require.resolve('eslint'),
         // 本地开发环境下将 ESLint 报错转为 warnings
         failOnError: false,
-        context: path.resolve(appPath, "src"),
+        context: appSrc,
         // 启用 ESLint 缓存
         cache: true,
         cacheLocation: path.resolve(
