@@ -123,6 +123,12 @@ sidebar_position: 2
 - `eslint-config-react-app`：CRA 的 ESLint 配置
 - `babel-preset-react-app`：CRA 的 Babel 配置
 
+:::tip
+
+对于前端工程常用 `babel` 配置建议掌握，可以参考 **前端项目 Babel 配置**。对于 `postcss` 可以直接用 `postcss-preset-env`，对于 `eslint` 可以直接用 `eslint-config-react-app`。
+
+:::
+
 ### `webpack.config.js` 配置
 
 ```js
