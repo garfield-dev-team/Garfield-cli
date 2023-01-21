@@ -380,6 +380,8 @@ module.exports = {
       new MiniCssExtractPlugin({
         filename: 'static/css/[name].[contenthash:8].css',
         chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+        // 解决用了 antd 组件库之后，抽提样式冲突问题
+        ignoreOrder: true,
       }),
     isEnvDevelopment &&
       new ReactRefreshWebpackPlugin({
@@ -465,7 +467,7 @@ module.exports = {
   optimization: {
     minimize: isEnvProduction,
     minimizer: [
-      // This is only used in production mode
+      // 仅在生产环境下启用，Terser 压缩默认启用 parallel
       new TerserPlugin({
         terserOptions: {
           parse: {
@@ -489,6 +491,8 @@ module.exports = {
             // Pending further investigation:
             // https://github.com/terser-js/terser/issues/120
             inline: 2,
+            // 生产环境打包移除 console
+            drop_console: true,
           },
           mangle: {
             safari10: true,
@@ -505,7 +509,7 @@ module.exports = {
           },
         },
       }),
-      // This is only used in production mode
+      // 仅在生产环境下启用
       new CssMinimizerPlugin(),
     ],
     // Webpack 运行时代码单独分包
