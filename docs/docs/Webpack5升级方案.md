@@ -166,7 +166,7 @@ module.exports = {
   // 生产环境不开启或者使用 `hidden-source-map`
   devtool: isEnvDevelopment ? "eval-cheap-module-source-map" : false,
   entry: {
-    main: path.resolve(appPath, "src/main.js"),
+    main: path.resolve(appPath, "src/index.js"),
     puzzleEntry: path.resolve(appPath, "src/studentPuzzle.js"),
   },
   output: {
@@ -517,8 +517,8 @@ module.exports = {
             safari10: true,
           },
           // Added for profiling in devtools
-          keep_classnames: isEnvProductionProfile,
-          keep_fnames: isEnvProductionProfile,
+          // keep_classnames: isEnvProductionProfile,
+          // keep_fnames: isEnvProductionProfile,
           output: {
             ecma: 5,
             comments: false,
