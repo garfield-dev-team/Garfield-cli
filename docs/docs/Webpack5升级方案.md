@@ -132,6 +132,7 @@ sidebar_position: 2
 ### `webpack.config.js` 配置
 
 ```js
+const fs = require("node:fs");
 const path = require("node:path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -147,6 +148,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 
 const appPath = process.cwd();
 const appBuild = path.resolve(appPath, "dist");
+const appHtml = path.resolve(appPath, "public/index.html");
 const appSrc = path.resolve(appPath, "src");
 const appTsConfig = path.resolve(appPath, "tsconfig.json");
 const appNodeModules = path.resolve(appPath, "node_modules");
@@ -155,7 +157,8 @@ const appTsBuildInfoFile = path.resolve(appPath, "node_modules/.cache/tsconfig.t
 
 const isEnvDevelopment = process.env.NODE_ENV === "development";
 const isEnvProduction = process.env.NODE_ENV === "production";
-const shouldUseBundleAnalyzer = process.env.ANALYZE === "true";
+const useBundleAnalyzer = process.env.ANALYZE === "true";
+const useTypeScript = fs.existsSync(appTsConfig);
 
 module.exports = {
   mode: isEnvDevelopment ? "development" : "production",
@@ -329,16 +332,16 @@ module.exports = {
     // 限制第三方库搜索范围，关闭逐层搜索功能
     modules: [appNodeModules],
     // 代码中尽量补齐文件后缀名，减少匹配次数
-    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.wasm'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.wasm'].filter(ext => useTypeScript || !ext.includes('ts')),
     alias: {
       "@": appSrc,
     },
     // Webpack5 不再提供 Node polyfill，如果用到这些模块需要单独安装
-    fallback: {
-      crypto: require.resolve("crypto-browserify"),
-      stream: require.resolve("stream-browserify"),
-      buffer: require.resolve("buffer/"),
-    },
+    // fallback: {
+    //   crypto: require.resolve("crypto-browserify"),
+    //   stream: require.resolve("stream-browserify"),
+    //   buffer: require.resolve("buffer/"),
+    // },
   },
   cache: {
     type: 'filesystem',
@@ -347,7 +350,7 @@ module.exports = {
     buildDependencies: {
       defaultWebpack: ['webpack/lib/'],
       config: [__filename],
-      tsconfig: [appTsConfig],
+      tsconfig: useTypeScript ? [appTsConfig] : [],
     },
   },
   devServer: {
@@ -360,12 +363,16 @@ module.exports = {
     historyApiFallback: true,
     host: '0.0.0.0',
     port: 8066,
+    setupMiddlewares: (middlewares, devServer) => {
+      // 设置 express 中间件，参考：
+      // https://webpack.js.org/configuration/dev-server/#devserversetupmiddlewares
+    },
   },
   plugins: [
     new Webpackbar(),
-    shouldUseBundleAnalyzer && new BundleAnalyzerPlugin(),
+    useBundleAnalyzer && new BundleAnalyzerPlugin(),
     new HtmlWebpackPlugin({
-      template: path.join(appPath, "public/index.html"),
+      template: appHtml,
       title: "React App",
       filename: "index.html",
       ...(isEnvProduction && {
@@ -399,50 +406,51 @@ module.exports = {
         overlay: false,
       }),
     isEnvDevelopment && new CaseSensitivePathsPlugin(),
-    new ForkTsCheckerWebpackPlugin({
-      async: isEnvDevelopment,
-      typescript: {
-        typescriptPath: resolve.sync('typescript', {
-          basedir: appNodeModules,
-        }),
-        configOverwrite: {
-          compilerOptions: {
-            sourceMap: isEnvDevelopment,
-            skipLibCheck: true,
-            inlineSourceMap: false,
-            declarationMap: false,
-            noEmit: true,
-            incremental: true,
-            tsBuildInfoFile: appTsBuildInfoFile,
+    useTypeScript &&
+      new ForkTsCheckerWebpackPlugin({
+        async: isEnvDevelopment,
+        typescript: {
+          typescriptPath: resolve.sync('typescript', {
+            basedir: appNodeModules,
+          }),
+          configOverwrite: {
+            compilerOptions: {
+              sourceMap: isEnvDevelopment,
+              skipLibCheck: true,
+              inlineSourceMap: false,
+              declarationMap: false,
+              noEmit: true,
+              incremental: true,
+              tsBuildInfoFile: appTsBuildInfoFile,
+            },
           },
+          context: appPath,
+          diagnosticOptions: {
+            syntactic: true,
+          },
+          mode: 'write-references',
+          // profile: true,
         },
-        context: appPath,
-        diagnosticOptions: {
-          syntactic: true,
+        issue: {
+          // This one is specifically to match during CI tests,
+          // as micromatch doesn't match
+          // '../cra-template-typescript/template/src/App.tsx'
+          // otherwise.
+          include: [
+            { file: '../**/src/**/*.{ts,tsx}' },
+            { file: '**/src/**/*.{ts,tsx}' },
+          ],
+          exclude: [
+            { file: '**/src/**/__tests__/**' },
+            { file: '**/src/**/?(*.){spec|test}.*' },
+            { file: '**/src/setupProxy.*' },
+            { file: '**/src/setupTests.*' },
+          ],
         },
-        mode: 'write-references',
-        // profile: true,
-      },
-      issue: {
-        // This one is specifically to match during CI tests,
-        // as micromatch doesn't match
-        // '../cra-template-typescript/template/src/App.tsx'
-        // otherwise.
-        include: [
-          { file: '../**/src/**/*.{ts,tsx}' },
-          { file: '**/src/**/*.{ts,tsx}' },
-        ],
-        exclude: [
-          { file: '**/src/**/__tests__/**' },
-          { file: '**/src/**/?(*.){spec|test}.*' },
-          { file: '**/src/setupProxy.*' },
-          { file: '**/src/setupTests.*' },
-        ],
-      },
-      logger: {
-        infrastructure: 'silent',
-      },
-    }),
+        logger: {
+          infrastructure: 'silent',
+        },
+      }),
     // 开发环境下启用 `ESLintPlugin`
     // 生产环境下禁用，确保最佳编译速度
     isEnvDevelopment &&
