@@ -366,6 +366,7 @@ module.exports = {
     setupMiddlewares: (middlewares, devServer) => {
       // 设置 express 中间件，参考：
       // https://webpack.js.org/configuration/dev-server/#devserversetupmiddlewares
+      return middlewares;
     },
   },
   plugins: [
