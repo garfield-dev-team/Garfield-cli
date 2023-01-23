@@ -330,7 +330,7 @@ module.exports = {
   },
   resolve: {
     // 限制第三方库搜索范围，关闭逐层搜索功能
-    modules: [appNodeModules],
+    // modules: [appNodeModules],
     // 代码中尽量补齐文件后缀名，减少匹配次数
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.wasm'].filter(ext => useTypeScript || !ext.includes('ts')),
     alias: {
