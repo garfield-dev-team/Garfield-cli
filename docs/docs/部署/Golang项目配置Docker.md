@@ -57,7 +57,13 @@ scratch 是一个虚拟镜像，不能被 pull，也不能运行，因为它表�
 - 不要使用 root 权限运行应用
 - 注意时区问题，系统默认的时区就是 UTC 时间（0 时区），和我们实际需要的北京时间相差八个小时
 
+参考：
+
 [没想到在 Docker 容器中设置时区这么简单](https://mp.weixin.qq.com/s/10Ll8ipVGWg4HU4hjwILsQ)
+
+[面试问 Dockerfile 的优化， 千万不要只会说减少层数](https://mp.weixin.qq.com/s/pen6G2aFsPfSqhKjgocVjQ)
+
+[掌握了这篇 Dockerfile 中的 ARG 作用域， 就算 Build 镜像 CI 入门了 【文末抽奖】](https://mp.weixin.qq.com/s/i3n0hoHRaYoDMWcC5DSQ3w)
 
 :::
 
