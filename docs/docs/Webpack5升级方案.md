@@ -172,14 +172,22 @@ module.exports = {
   output: {
     // 打包产物的文件夹
     path: appBuild,
-    // JS 资源用 contenthash，提升缓存复用率
-    filename: "static/js/[name].[contenthash:8].js",
-    // 基于 Code-Splitting 分包的异步 chunk
-    chunkFilename: "static/js/[name].[contenthash:8].chunk.js",
+    // JS 资源用 contenthash，提升缓存复用率，开发环境不用哈希，提升构建效率
+    filename: isEnvProduction ? "static/js/[name].[contenthash:8].js" : "static/js/[name].js",
+    // 基于 Code-Splitting 分包的异步 chunk，开发环境不用哈希，提升构建效率
+    chunkFilename: isEnvProduction ? "static/js/[name].[contenthash:8].chunk.js" : "static/js/[name].chunk.js",
     // Asset Module 打包图片、字体的输出路径
     assetModuleFilename: 'static/media/[name].[hash][ext]',
     // 静态资源前缀，非根路径部署，或者生产环境静态资源上传 CDN 会用到
-    publicPath: "/",
+    publicPath: "auto",
+    // 指定 Async Chunk 的加载方式
+    // 默认 `jsonp`，可以改为 `import`，但是需要注意兼容性问题
+    // chunkLoading: "import",
+    // 指定用于 jsonp 加载的全局变量
+    // chunkLoadingGlobal: "myCustomFunc",
+    // 选择一个更加快速的 hash 函数，即可减少 CPU 消耗，并提升打包速度
+    // 比如将默认的 `md4` 换成 `xxhash64`
+    hashFunction: "xxhash64",
     // 清空打包输出目录
     clean: true,
   },
@@ -332,7 +340,8 @@ module.exports = {
     // 限制第三方库搜索范围，关闭逐层搜索功能
     // modules: [appNodeModules],
     // 代码中尽量补齐文件后缀名，减少匹配次数
-    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.wasm'].filter(ext => useTypeScript || !ext.includes('ts')),
+    // 常用的前缀放在前面，也可提升匹配效率
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.wasm'].filter(ext => useTypeScript || !ext.includes('ts')),
     alias: {
       "@": appSrc,
     },
@@ -396,6 +405,8 @@ module.exports = {
       __DEV__: isEnvDevelopment,
     }),
     isEnvProduction &&
+      // 生产环境下抽提样式
+      // 注意 `MiniCssExtractPlugin` 仅在生产环境下启用，文件名哈希也仅用于生产环境
       new MiniCssExtractPlugin({
         filename: 'static/css/[name].[contenthash:8].css',
         chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
