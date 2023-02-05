@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[3421],{2621:function(a){a.exports=JSON.parse('{"label":"facebook","permalink":"/Garfield-cli/blog/tags/facebook","allTagsPath":"/Garfield-cli/blog/tags","count":1}')}}]);
