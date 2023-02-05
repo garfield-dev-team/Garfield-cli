@@ -4,7 +4,8 @@
   "description": "Garfield-cli is a cli building tool for modern web application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "pnpm --filter=docs start",
+    "build": "pnpm --filter=docs build"
   },
   "author": "Garfield Dong",
   "license": "ISC"
