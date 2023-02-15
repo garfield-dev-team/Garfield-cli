@@ -57,7 +57,10 @@ scratch 是一个虚拟镜像，不能被 pull，也不能运行，因为它表�
 - 不要使用 root 权限运行应用
 - 注意时区问题，系统默认的时区就是 UTC 时间（0 时区），和我们实际需要的北京时间相差八个小时
 
+
 参考：
+
+[这些关于 Golang timezone 时区的坑， 我已经帮你踩过了](https://mp.weixin.qq.com/s/mtdyAKwrFmPZs-wobzG8dw)
 
 [没想到在 Docker 容器中设置时区这么简单](https://mp.weixin.qq.com/s/10Ll8ipVGWg4HU4hjwILsQ)
 
