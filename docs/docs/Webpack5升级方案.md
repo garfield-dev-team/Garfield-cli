@@ -18,6 +18,7 @@ sidebar_position: 2
 
 - 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules（值有四种，`asset/resource` 对应 `file-loader`、`asset/inline` 对应`url-loader`、`asset/source` 对应 `raw-loader`、`asset` 根据资源大小自动选择 `resource` 或者 `inline`）；
 - 清理目录插件：`clean-webpack-plugin` -> Webpack5 内置 `output.clean` 配置项；
+- 选择更加快速的哈希函数：Webpack v5.54.0+ 支持 `output.hashFunction: "xxhash64"` 替换默认的 `md4` 哈希函数
 - 热更新插件：`HotModuleReplacementPlugin` -> Webpack5 配置 `devServer.hot = true` 时自动启用；
 - 代码压缩插件：`uglify-js-webpack-plugin` -> Webpack5 内置 `terser-webpack-plugin` (生产环境下使用，移除代码中的 `debugger` 和 `console.*`) ；
 - 抽取公共模块：`CommonChunksPlugin` -> Webpack5 内置 `optimization.splitChunks` ；
