@@ -268,6 +268,12 @@ COPY --from=builder code/build/static /usr/share/nginx/html/static
 
 ## 参考
 
+[前端抢饭碗系列之初识Docker容器化部署](https://juejin.cn/post/7069609959985512484)
+
+[前端抢饭碗系列之Docker容器编排](https://juejin.cn/post/7113712658850775048)
+
+[前端抢饭碗系列之Docker进阶部署](https://juejin.cn/post/7083009375387779085)
+
 [写给前端的 Docker 上手指南](https://mp.weixin.qq.com/s/5LLX__x-yamgR83e0NKAtA)
 
 [云计算时代，你还不会 Docker ？ 一万字总结（建议收藏）](https://mp.weixin.qq.com/s/f581rfvKWE3KGgWfZDJ2cA)
