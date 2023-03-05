@@ -16,9 +16,7 @@ sidebar_position: 2
 
 ## 插件升级方案
 
-- 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules（值有四种，`asset/resource` 对应 `file-loader`、`asset/inline` 对应`url-loader`、`asset/source` 对应 `raw-loader`、`asset` 根据资源大小自动选择 `resource` 或者 `inline`）；
 - 清理目录插件：`clean-webpack-plugin` -> Webpack5 内置 `output.clean` 配置项；
-- 选择更加快速的哈希函数：Webpack v5.54.0+ 支持 `output.hashFunction: "xxhash64"` 替换默认的 `md4` 哈希函数
 - 热更新插件：`HotModuleReplacementPlugin` -> Webpack5 配置 `devServer.hot = true` 时自动启用；
 - 代码压缩插件：`uglify-js-webpack-plugin` -> Webpack5 内置 `terser-webpack-plugin` (生产环境下使用，移除代码中的 `debugger` 和 `console.*`) ；
 - 抽取公共模块：`CommonChunksPlugin` -> Webpack5 内置 `optimization.splitChunks` ；
@@ -31,6 +29,17 @@ sidebar_position: 2
 - Rule.loaders -> Rule.use（注意 loaders 已经废弃了，但是 loader 还是可用的，相当于 Rule.use: [ { loader } ] 简写）
 - 本地开发命令：`webpack-cli` 支持 `webpack serve` 启动 devServer
 - 其他插件例如 `html-webpack-plugin` 虽然不用换，但也需要升级到支持 Webpack5 的版本；
+
+## 配置优化方案
+
+- 静态资源处理，图片、字体打包：`url-loader` -> Webpack5 内置 Asset Modules（值有四种，`asset/resource` 对应 `file-loader`、`asset/inline` 对应`url-loader`、`asset/source` 对应 `raw-loader`、`asset` 根据资源大小自动选择 `resource` 或者 `inline`）；
+- 模块构建缓存（Webpack 4 需要手动配置 `cache-loader`）
+- 文件哈希：`fullhash`（对应 Webpack 4 的 `hash`）、`chunkhash`、`contenthash`。Webpack 5 对 `contenthash` 进行优化，在缓存效率上有更好的利用。无特殊场景，建议都用 `contenthash`（生产环境下使用）；
+- 选择更加快速的哈希函数：Webpack v5.54.0+ 支持 `output.hashFunction: "xxhash64"` 替换默认的 `md4` 哈希函数
+- 支持运行时代码单独分包：`optimization.runtimeChunk: "single"`，默认分包规则 Initial Chunk、Async Chunk 基础上新增一种 Runtime Chunk
+- 针对 re-export 场景优化：`optimization.providedExports: true`，配合 `optimization.sideEffects: true` 可以实现第三方库按需打包（例如 antd@v5、ahooks），配合 `optimization.usedExports: true` 启用模块标记可以实现 Tree-Shaking
+- Module Federation（模块联邦让 Webpack 达到了线上 Runtime 的效果，让代码直接在项目间利用 CDN 直接共享，不再需要本地安装 Npm 包、构建再发布了）
+- 不再内置 Node.js polyfill，如果用到 Node 内置模块需要自行安装 polyfill
 
 ## 基于 React + TypeScript 的 Webpack5 配置最佳实践
 
