@@ -60,7 +60,8 @@ jobs:
       # 因此即使缓存命中，仍然需要运行 `pnpm install` 用于创建 symlink
       # 此处可以加上 `--prefer-offline` 优先用本地缓存
       - name: Install Dependencies
-        run: pnpm install --prod --prefer-offline --frozen-lockfile
+        # run: pnpm install --prod --prefer-offline --frozen-lockfile
+        run: pnpm install --prefer-offline --frozen-lockfile
 
       - name: Build
         run: pnpm build
