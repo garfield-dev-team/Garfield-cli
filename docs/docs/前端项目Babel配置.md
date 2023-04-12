@@ -21,6 +21,10 @@ module.exports = {
     [
       "@babel/preset-env",
       {
+        // 第三方库无法根据前端业务工程 `target` 动态调整
+        // 如果需要支持低版本浏览器，则需要转译所有 ES next 语法
+        // 因此 `bugfixes` 在这里没有意义
+        // bugfixes: true,
         // 保留 ES Module
         // 业务工程如果没有用到某些导出可以 Tree-Shaking
         modules: false,
@@ -44,20 +48,32 @@ module.exports = {
 
 **业务工程需要语法转换，同时根据 `target` 配置全量引入 polyfill（`useBuiltIns: "entry"`）**。业务工程能否按需引入 polyfill（`useBuiltIns: "usage"`），不能因为前面说了，出于体积考虑第三方库发包一般都不引入 polyfill，出于构建性能考虑 `babel-loader` 一般不会处理 `node_modules` 下的代码，这种情况下只能全量引入 polyfill 确保可以命中第三方库的 API。
 
+这边需要注意 `@babel/preset-env` 的 `bugfixes` 配置。该选项合并了 `@babel/preset-modules` 特性，启用后，`@babel/preset-env` 会尝试将高版本语法，转换为目标浏览器兼容的最接近的语法，可以极大减小编译后的体积，Babel 8 将默认启用该配置。
+
 ```js
 module.exports = {
   presets: [
-    "@babel/preset-typescript",
+   "@babel/preset-typescript",
     [
       "@babel/preset-env",
       {
-        // 保留 ES Module
-        // 有利于 Tree-Shaking
+        // 启用 `@babel/preset-modules` 特性，默认 false
+        // 将高版本语法，转换为目标浏览器兼容的最接近的语法
+        // 可以极大减小编译后的体积
+        // Babel 8 将默认启用该配置
+        bugfixes: true,
+        // 更兼容 spec，但会变慢，所以不开
+        spec: false,
+        // 推荐用 top level 的 assumptions 配置
+        loose: false,
+        // 保留 ES Module 语法，交给 webpack 处理，用来支持 Tree-Shaking
         modules: false,
-        // 根据 target 配置全量引入 polyfill
+        // 使用 entry 方式，按照 target 配置全量引入 polyfill、以及提案阶段的 API
+        // 需要注意，直接配置 `useBuiltIns: "entry"` 不会引入 polyfill
+        // 还需要在入口文件中加一句 `import "core-js/stable";`
+        // 建议根据适配目标合理配置 `browserslist`，以减小 polyfill 体积
         useBuiltIns: "entry",
-        // 推荐使用 corejs@3.x 版本
-        // 2.x 已经停止维护了，不会给实例方法 polyfill
+        // 使用最新版本的 core-js
         corejs: "3.0"
       }
     ],
