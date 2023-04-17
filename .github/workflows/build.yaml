@@ -61,9 +61,7 @@ jobs:
       # 此处可以加上 `--prefer-offline` 优先用本地缓存
       - name: Install Dependencies
         # run: pnpm install --prod --prefer-offline --frozen-lockfile
-        run: |
-          pnpm fetch --prod
-          pnpm install -r --offline --prod
+        run: pnpm install --prefer-offline --frozen-lockfile
 
       - name: Build
         run: pnpm build
