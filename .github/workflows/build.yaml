@@ -63,7 +63,7 @@ jobs:
         # run: pnpm install --prod --prefer-offline --frozen-lockfile
         run: |
           pnpm fetch --prod
-          pnpm install --offline --prod
+          pnpm install -r --offline --prod
 
       - name: Build
         run: pnpm build
