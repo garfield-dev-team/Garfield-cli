@@ -206,6 +206,28 @@ module.exports = {
 }
 ```
 
+## 再看 Babel
+
+1、说到 Babel 我会想到的一些关键词，语言特性、tc39、补丁、扩展和生态、慢，你会想到啥？
+
+2、Babel 的出发点是让开发者提前用上 ECMAScript 提案里的特性，除此之外，我们还用他来打补丁、实现 Code Mod、识别文件特征、约束和卡点、magic 功能比如 auto css modules 等
+
+3、语言特性都是 Babel 官方提供，由很多插件组成，这些特性归属不同的 Stage，从 Stage 0 到 3，preset-env 不包含 3 以下的语言特性，所以通常使用方式是 preset-env + 手选的 stage 3 以下特性
+
+4、语言特性又分两类，编译类和补丁类。前者比如 `[1, 2, 3].map(n => n + 1)` 只要编译成 `[1, 2, 3].map(function (n) { return n + 1 })` 就好， 后者比如 `[1, 2, 3].includes(1)` 的 includes 是需要给不支持的浏览器额外 `Array.prototype.includes` 补丁的，有些特性需要两者结合使用
+
+5、语言特性的编译会产生很多辅助代码，比如 `class {}` 会需要 inherits、setPrototypeOf、createSuper、getPrototypeOf、classCallCheck 等辅助函数，babel 的编译是文件级的，所以会产生大量的重复代码，解法是 plugin-transform-runtime + `@babel/runtime` 的组合，`@babel/runtime`  封装上述辅助函数，plugin-transform-runtime 让编译产物使用 `@babel/runtime`
+
+6、plugin-transform-runtime 不要配 corejs 带上补丁，不管是项目还是组件。大家可以想想为什么，算是这篇文章留的一道题
+
+7、补丁方案 Babel 提供了两种，通过 targets 配置 + preset-env 的 useBuiltIns 配置实现，两种方案分别对应的是 entry 和 usage 值，前者会替换 core-js import 为特性列表，后者会按使用引入用到的特性列表
+
+8、Babel 作为编译器不应该处理 modules 类型的转换，比如 esm 到 cjs 或 systemjs，这层处理应交给 Bundler，Bundler 通常还要依赖 esm 模块做 tree-shaking，所以 preset-env 里的 modules 是个废配置，始终设为 false 就好
+
+9、慢！是个大问题。影响的不仅有开发者的效率，还有工程化方案。如果不慢，node_modules 也走 babel 编译，那很多问题根本不存在。比如补丁方案可以切到 usage 按需打，整体尺寸会更小；比如部分依赖没有用 es5 语法导致的 ie11 兼容问题；比如组件发布可以用 ts 写不用编译直接发布。这给 swc 等竞对方案留了很多可能性。
+
+10、生态很好，却没啥可用的。最后一条本想推荐一些三方插件，翻了下发现并没有啥，目前在 umi 在用的有 import、macros、svgr-webpack 和 named-asset-import。因为很多 Babel 能做的在 Bundler 层也能做而且更合理，Babel 覆盖范围只有项目代码，Bundler 层覆盖整个产物，像 remove-console 这种在 Bundler 层做就更合理。
+
 ## 参考
 
 [你构建的代码为什么这么大](https://juejin.cn/post/7179049172706787387)
