@@ -204,13 +204,16 @@ FROM base AS builder
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 
-# Node v16.13 开始支持 corepack 用于管理包管理器
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Node v16.13 开始支持 corepack 用于管理第三方包管理器
+# 企业级项目建议锁定包管理器版本，确保 CI 每次构建都是幂等的
+# RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@8.5.0 --activate
 
 WORKDIR /app
 
 # pnpm fetch does require only lockfile
-COPY pnpm-lock.yaml ./
+# 注意还需要复制 `.npmrc`，因为里面可能包含 npm registry 等配置，下载依赖需要用到
+COPY .npmrc pnpm-lock.yaml ./
 
 # 推荐使用 pnpm fetch 命令下载依赖到 virtual store，专为 docker 构建优化
 # 参考：https://pnpm.io/cli/fetch
@@ -224,7 +227,10 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # 基于 virtual store 生成 node_modules && 打包构建
 # 此处不需要与 package registry 进行通信，因此依赖安装速度极快
-RUN pnpm install --offline && pnpm build
+# 注意 PNPM v8.4.0 版本有一个 breaking change
+# 当 `node_modules` 存在，运行 `pnpm install` 会出现命令行交互操作，导致 CI 挂掉
+# 这里加上 `--force` 参数，关闭命令行交互操作
+RUN pnpm install --offline --force && pnpm build
 
 FROM base AS runner
 
