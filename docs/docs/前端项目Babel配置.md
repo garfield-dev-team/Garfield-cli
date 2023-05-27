@@ -95,6 +95,12 @@ module.exports = {
 
 ### 3）是否需要配置语法插件
 
+Babel v7.22.0 发布，真的很 Breaking ，爆杀全世界。
+
+为啥 Breaking 了全世界？因为有一大批 es 功能进入了 stage 4 ，所以这个版本 babel 把超级多 proposal 的包名都改了（默认在 `@babel/preset-env` 都包含了），光改名了还不算完，你猜怎么着，旧版本的全部放弃更新了，意味着如果你用了含有 proposal 名字的 babel 插件。
+
+> https://babeljs.io/blog/2023/05/26/7.22.0
+
 在 CRA babel 配置中，可以看到启用了较多语法插件：
 
 ```js
