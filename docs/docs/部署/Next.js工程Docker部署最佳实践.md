@@ -193,11 +193,17 @@ $ docker build --progress=plain -t myimage:latest .
 
 某些构建耗时的步骤，例如安装依赖包等，可以提前打一个基础镜像，后续都基于这个基础镜像进行构建。
 
+[不藏着了，构建并减少Docker镜像容量的优化技巧都分享给你们！](https://mp.weixin.qq.com/s/XM5oya9WdvSxeDveTaWlkg)
+
 ## 4、完整 Dockerfile 参考
 
 ```sh
 # 指定基础镜像版本，确保每次构建都是幂等的
 FROM node:18-alpine AS base
+
+# 由于修改源码之后会导致 COPY 之后的构建步骤缓存失效
+# 把这步提升到 base 阶段，避免每次 build 都重复跑
+RUN apk add --no-cache curl
 
 FROM base AS builder
 
@@ -235,7 +241,7 @@ RUN pnpm install --offline --force && pnpm build
 FROM base AS runner
 
 # RUN apk update && apk add --no-cache git
-RUN apk add --no-cache curl
+# RUN apk add --no-cache curl
 
 # 如果需要是用 TZ 环境变量 实现时区控制，需要安装 tzdata 这个包
 # debian 的基础镜像默认情况下已经安装了 tzdata，而 ubuntu 并没有

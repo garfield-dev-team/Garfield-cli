@@ -68,6 +68,8 @@ scratch 是一个虚拟镜像，不能被 pull，也不能运行，因为它表�
 
 [掌握了这篇 Dockerfile 中的 ARG 作用域， 就算 Build 镜像 CI 入门了 【文末抽奖】](https://mp.weixin.qq.com/s/i3n0hoHRaYoDMWcC5DSQ3w)
 
+[不藏着了，构建并减少Docker镜像容量的优化技巧都分享给你们！](https://mp.weixin.qq.com/s/XM5oya9WdvSxeDveTaWlkg)
+
 :::
 
 ## 2. Docker 常用命令
