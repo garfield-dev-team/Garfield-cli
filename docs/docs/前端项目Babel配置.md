@@ -93,6 +93,25 @@ module.exports = {
 
 需要注意，`useBuiltIns: "entry"` 配置实际上也存在问题，在构建的时候只能针对一个固定的 `target` 引入 polyfill，导致高版本浏览器也会加载很多不需要的代码。最好的做法是用一些 polyfill CDN，按照客户端实际 User-Agent 动态下发 polyfill。这样用最新版 Chrome 浏览器访问该服务，返回的 JS 内容是空的。但是用 CDN 在内网访问可能会挂，这种情况需要私有部署。
 
+还需注意的一个问题，现代浏览器已经支持大部分 ES next 特性，可以适当调高 browerslist，不再需要将代码转译到 ES5（否则体积太大）。比如实际打包的时候，可以看到产物仍然保留了 let、const、箭头函数等语法，好处是可以提升现代浏览器的加载性能。
+
+这种情况下怎么兼容 IE 浏览器？有一个小技巧是用 `type="module"` 作为断点，支持该特性的浏览器会加载包含 ES next 语法的代码，而不支持该特性的浏览器会加载 ES5 代码。值得注意，`type="module"` 还可以作为 polyfill 的断点，实现按需加载 polyfill。这个技巧在保证老旧浏览器兼容性同时，又提升了现代浏览器的加载性能，在 Vite、Next.js 等开源项目都有应用。
+
+```html
+<!-- Chrome >= 61 以上浏览器会加载，注意此处代码最低只需要适配 Chrome 61 即可 -->
+<script type="module" src="/polyfill_es_feature.js"></script>
+<script type="module" src="/runtime.js"></script>
+<script type="module" src="/main.js"></script>
+<!-- Chrome 61 以下版本浏览器会加载 -->
+<script nomodule src="/legacy_polyfill_promise.js"></script>
+<script nomodule src="/legacy_polyfill_fetch.js"></script>
+<script nomodule src="/legacy_polyfill_es_feature.js"></script>
+<script nomodule src="/legacy_runtime.js"></script>
+<script nomodule src="/legacy_main.js"></script>
+```
+
+> 有个问题，以上 legacy chunk 为啥单独引入 Promise polyfill（而不是打包在 es_feature 里面）？这是因为，Webpack 运行时代码可能依赖 Promise（比如 `import()`、Module Federation、topLevelAwait 特性），因此 Promise polyfill 不建议作为业务代码打包
+
 ### 3）是否需要配置语法插件
 
 Babel v7.22.0 发布，真的很 Breaking ，爆杀全世界。
