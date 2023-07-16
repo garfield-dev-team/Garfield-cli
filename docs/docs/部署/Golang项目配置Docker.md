@@ -70,6 +70,8 @@ scratch 是一个虚拟镜像，不能被 pull，也不能运行，因为它表�
 
 [不藏着了，构建并减少Docker镜像容量的优化技巧都分享给你们！](https://mp.weixin.qq.com/s/XM5oya9WdvSxeDveTaWlkg)
 
+[Docker 多架构镜像介绍和最佳实践](https://mp.weixin.qq.com/s/yx4NNA904xGEOFUhqtBZTw)
+
 :::
 
 ## 2. Docker 常用命令
