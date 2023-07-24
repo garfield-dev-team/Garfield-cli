@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-## 前言
+## 01 前言
 
 为啥选择关注前端工程化：
 - **经验主义**。前端工程化总体比较经验主义，很多问题没有标准答案，意味着一个问题可能有多个解，就像做系统设计、架构设计一样，需要靠个人经验权衡，选择最优解，很难被 GPT 替代；
@@ -14,13 +14,13 @@ sidebar_position: 5
 - 进阶，掌握构建效率优化、产物优化等技巧；
 - 资深，能够利用 Webpack 解业务中各种复杂工程化问题
 
-## 解决 React 多实例问题
+## 02 解决 React 多实例问题
 
 正解是用 Webpack alias 转发。
 
 > Webpack 打包替换模块，除了修改 resolve 配置，还可以用 `NormalModuleReplacementPlugin`
 
-## 业务工程如何关联组件库开发
+## 03 业务工程如何关联组件库开发
 
 同样也是用 Webpack alias 转发。但是还需要考虑一些问题，比如：
 
@@ -28,7 +28,7 @@ sidebar_position: 5
 
 2、第三方库修改一般不会触发 Webpack 增量编译，需要修改业务工程 Webpack watch 监听范围。
 
-## 解决模块包按需加载问题
+## 04 解决模块包按需加载问题
 
 解法是 Webpack5 的 `optimization.sideEffects`（依赖 `optimization.providedExports` 配置），在 npm 包的 `package.json` 中添加 `"sideEffects": false` 就行：
 
@@ -59,7 +59,6 @@ sidebar_position: 5
 }
 ```
 
-
 :::tip
 
 为啥需要这个配置？如果继续用配置 `"sideEffects": false` 导致业务工程打包的时候，告诉 Webpack import CSS 没有副作用，然后又没有使用导出值，Webpack 会直接把所有样式都 Tree-Shaking 掉。
@@ -70,7 +69,6 @@ sidebar_position: 5
 
 :::
 
-
 CSS Module 可以部分解决 Tree-Shaking 的问题，但是作为组件库会导致外部难以覆盖类名，此外 CSS 本身的一些问题仍然存在，例如 Code-Splitting 样式冲突问题。
 
 Antd v5 改用了 CSS-in-JS，对 Code-Splitting 和 Tree-Shaking 都比较友好。总结模块包设计最佳实践：
@@ -79,16 +77,89 @@ Antd v5 改用了 CSS-in-JS，对 Code-Splitting 和 Tree-Shaking 都比较友�
 - **用 index.js 做 re-export，同时声明依赖包 sideeffect free**，有利于 Webpack 做依赖分析，排除无用导出
 - **现代化 CSS 方案**，例如 antd@v5 弃用 less，采用 CSS-in-JS，可以更好地支持 Tree-Shaking，排除无用导出
 
-## 解决启用 `topLevelAwait` 之后页面加载白屏问题
+## 05 Webpack plugin 小技巧
+
+最近调研了一种 SVG symbol 方案，可以较好地解决 svgr 打包带来的问题。基于 Webpack plugin 和 loader 组合技。在构建阶段用 loader 提取 svg 标签内容，将模块内容替换为一个预定义的 React 组件，然后在 plugin 内部可以拿到所有打包的 svg 模块，拼接 svg symbol，由 HtmlWebpackPlugin 将 svg symbol 注入到 html body 标签内，实现打包。
+
+有哪些核心难点？
+
+1、Webpack plugin 如何访问 loaderContext，在 Webpack5 之前用的是 `compilation.hooks.normalModuleLoader` 这个方式，但是在 Webpack5 已经废弃了，改为 `NormalModule.getCompilationHooks(compilation).loader`。
+
+```ts
+import type { Compiler, WebpackPluginInstance } from "webpack";
+import NormalModule from "webpack/lib/NormalModule";
+
+class InlineSvgPlugin implements WebpackPluginInstance {
+	public apply(compiler: Compiler) {
+		compiler.hooks.compilation.tap("InlineSvgPlugin", (compilation) => {
+			// 导入 NormalModule 需要避免 webpack 多实例问题
+      NormalModule.getCompilationHooks(compilation).loader.tap(
+        "InlineSvgPlugin",
+        (loaderContext) => {
+          // @ts-ignore
+          loaderContext.svgIconPlugin = this;
+        },
+      );
+
+			// 注意，`normalModuleLoader` 在 Webpack5 已经废弃了，建议用上面方法替代
+      // compilation.hooks.normalModuleLoader.tap(
+      //   "InlineSvgPlugin",
+      //   (loaderContext) => {
+      //     // @ts-ignore
+      //     loaderContext.svgIconPlugin = this;
+      //   },
+      // );
+		});
+	}
+}
+```
+
+2、自定义 plugin 如何操控 HtmlWebpackPlugin，答案是 hooks，在 HtmlWebpackPlugin 中同样基于 tapable 实现了一些事件钩子 `const hooks = HtmlWebpackPlugin.getHooks(compilation);`，可以自定义生成的 HTML 内容，比如 `HtmlInlineScriptPlugin` 这个插件也用了同样原理实现打包产物注入 HTML。
+
+```ts
+import type { Compiler, WebpackPluginInstance } from "webpack";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+
+class InlineSvgPlugin implements WebpackPluginInstance {
+	public apply(compiler: Compiler) {
+		compiler.hooks.compilation.tap("InlineSvgPlugin", (compilation) => {
+			// HtmlWebpackPlugin 也需要确保全局单例，这样才能监听事件钩子
+      const hooks = HtmlWebpackPlugin.getHooks(compilation);
+
+      hooks.afterTemplateExecution.tapAsync(
+        "InlineSvgPlugin",
+        (htmlPluginData, callback) => {
+          // your code
+          if (Object.keys(this.iconMap).length > 0) {
+            let htmlContent = htmlPluginData.html;
+            const icons = Object.values(this.iconMap).join("");
+            htmlContent = htmlContent.replace(
+              "<body>",
+              `<body><svg xmlns="http://www.w3.org/2000/svg" style="display: none;">${icons}</svg>`,
+            );
+            htmlPluginData.html = htmlContent;
+          }
+
+          return typeof callback === "function"
+            ? callback(null, htmlPluginData)
+            : htmlPluginData;
+        },
+      );
+		});
+	}
+}
+```
+
+## 06 解决启用 `topLevelAwait` 之后页面加载白屏问题
 
 
-## 解决 Taro 混合开发相关问题
+## 07 解决 Taro 混合开发相关问题
 
 1、解决 Taro 混合开发相关问题
 
 2、解决本地开发 Webpack 编译后，微信开发者工具编译慢问题
 
-## 解决 Vue 组件打包 NEJ 模块相关问题
+## 08 解决 Vue 组件打包 NEJ 模块相关问题
 
 老工程 Rollup to nej 如何打包：
 
