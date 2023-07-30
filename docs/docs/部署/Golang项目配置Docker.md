@@ -74,6 +74,8 @@ scratch 是一个虚拟镜像，不能被 pull，也不能运行，因为它表�
 
 [Docker 多架构镜像介绍和最佳实践](https://mp.weixin.qq.com/s/yx4NNA904xGEOFUhqtBZTw)
 
+[关于Dockerfile的最佳实践技巧](https://mp.weixin.qq.com/s/VxkHe3GI8Z-NqjDDdGuzWg)
+
 :::
 
 ## 2. Docker 常用命令

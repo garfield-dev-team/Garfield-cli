@@ -195,6 +195,8 @@ $ docker build --progress=plain -t myimage:latest .
 
 [不藏着了，构建并减少Docker镜像容量的优化技巧都分享给你们！](https://mp.weixin.qq.com/s/XM5oya9WdvSxeDveTaWlkg)
 
+[关于Dockerfile的最佳实践技巧](https://mp.weixin.qq.com/s/VxkHe3GI8Z-NqjDDdGuzWg)
+
 ## 4、完整 Dockerfile 参考
 
 ```sh
