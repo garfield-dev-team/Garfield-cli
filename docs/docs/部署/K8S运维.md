@@ -10,6 +10,14 @@ sidebar_position: 10
 
 ## 云原生运维相关
 
+微服务网关可以做哪些：
+
+- HTTPS 证书：每个应用可以 HTTP，由网关层提供 HTTPS
+- 鉴权：网关层可以做登录鉴权，但是更细粒度的 RBAC 鉴权还是需要应用内部做
+- 跨域：网关层统一添加跨域响应头，应用内部无需单独配置
+- 缓存：网关可以缓存一些频繁请求的数据，从而减轻后端微服务的压力，提高系统响应速度（补充一下，API 网关是业务流量的入口，它不像图片、视频等 CDN 加速的这种非业务流量）
+- 日志与监控：微服务网关可以记录请求和响应的日志，并提供监控指标，帮助开发团队诊断和解决问题
+
 [基于Openresty+Lua实现微服务Api 网关](https://mp.weixin.qq.com/s/DTjP_RipSLiaRbEIOiV4iQ)
 
 [挖掘Kubernetes 弹性伸缩：扩展监控指标实现丰富弹性](https://mp.weixin.qq.com/s/_c1QnpwgxVwggfRnH4bEkA)
