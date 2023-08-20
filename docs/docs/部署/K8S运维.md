@@ -8,6 +8,8 @@ sidebar_position: 10
 
 [Prometheus入门](https://mp.weixin.qq.com/s/-6gvR-c_maf6hWJFST9UQA)
 
+[Docker 部署 Prometheus 实现一个极简的 QPS 监控](https://juejin.cn/post/7181812424570322981)
+
 ## 云原生运维相关
 
 微服务网关可以做哪些：
@@ -17,6 +19,12 @@ sidebar_position: 10
 - 跨域：网关层统一添加跨域响应头，应用内部无需单独配置
 - 缓存：网关可以缓存一些频繁请求的数据，从而减轻后端微服务的压力，提高系统响应速度（补充一下，API 网关是业务流量的入口，它不像图片、视频等 CDN 加速的这种非业务流量）
 - 日志与监控：微服务网关可以记录请求和响应的日志，并提供监控指标，帮助开发团队诊断和解决问题
+
+[Ingress企业实战：URL重写与高级玩法](https://mp.weixin.qq.com/s/9dMFaxgtxPiE1wok4z43iw)
+
+[Ingress企业实战：HTTPS证书管理与双向认证篇](https://mp.weixin.qq.com/s/h5IdoH7derfGK_oeI_pu0g)
+
+[Ingress企业实战：金丝雀与蓝绿发布篇](https://mp.weixin.qq.com/s/L2-e-Q8PQt3m4p9QZKxSmg)
 
 [基于Openresty+Lua实现微服务Api 网关](https://mp.weixin.qq.com/s/DTjP_RipSLiaRbEIOiV4iQ)
 
