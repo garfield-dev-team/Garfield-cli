@@ -20,6 +20,8 @@ sidebar_position: 10
 - 缓存：网关可以缓存一些频繁请求的数据，从而减轻后端微服务的压力，提高系统响应速度（补充一下，API 网关是业务流量的入口，它不像图片、视频等 CDN 加速的这种非业务流量）
 - 日志与监控：微服务网关可以记录请求和响应的日志，并提供监控指标，帮助开发团队诊断和解决问题
 
+[Ingress企业实战：部署多个Ingress控制器](https://mp.weixin.qq.com/s/FQOE2cGm9Qu0x-a9-vZiWw)
+
 [Ingress企业实战：URL重写与高级玩法](https://mp.weixin.qq.com/s/9dMFaxgtxPiE1wok4z43iw)
 
 [Ingress企业实战：HTTPS证书管理与双向认证篇](https://mp.weixin.qq.com/s/h5IdoH7derfGK_oeI_pu0g)
