@@ -430,16 +430,16 @@ https://webpack.js.org/concepts/module-federation/#infer-publicpath-from-script
 
 [# 基于 MF 的组件化共享工作流](https://mp.weixin.qq.com/s/u5oAcIYiGrl1qOujOYjzqw)
 
-## 06 解决启用 `topLevelAwait` 之后页面加载白屏问题
+## 07 解决启用 `topLevelAwait` 之后页面加载白屏问题
 
 
-## 07 解决 Taro 混合开发相关问题
+## 08 解决 Taro 混合开发相关问题
 
 1、解决 Taro 混合开发相关问题
 
 2、解决本地开发 Webpack 编译后，微信开发者工具编译慢问题
 
-## 08 解决 Vue 组件打包 NEJ 模块相关问题
+## 09 解决 Vue 组件打包 NEJ 模块相关问题
 
 老工程 Rollup to nej 如何打包：
 
