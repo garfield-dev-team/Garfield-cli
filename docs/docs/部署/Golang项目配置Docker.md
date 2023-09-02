@@ -29,6 +29,9 @@ FROM scratch as final
 RUN adduser -D -u 10000 florin
 USER florin
 
+# 注意，对于 alpine 镜像，如果需要支持一些 linux 命令，可以安装 coreutils 包来启用
+# RUN apk add –no-cache coreutils
+
 # 设置时区
 # 在使用 Docker 容器时，系统默认的时区就是 UTC 时间（0 时区），和我们实际需要的北京时间相差八个小时
 ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 TZ=Asia/Shanghai
