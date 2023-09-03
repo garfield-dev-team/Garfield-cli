@@ -10,6 +10,10 @@ sidebar_position: 10
 
 [Docker 部署 Prometheus 实现一个极简的 QPS 监控](https://juejin.cn/post/7181812424570322981)
 
+[Prometheus-Operator：告警认领功能实现](https://mp.weixin.qq.com/s/EZBm9NyYNhOs0isJm0kXOw)
+
+[Prometheus-Operator：告警自动创建钉钉群](https://mp.weixin.qq.com/s/-88x32ELYwL-1VqBqIH-eA)
+
 ## 云原生运维相关
 
 微服务网关可以做哪些：
@@ -19,6 +23,14 @@ sidebar_position: 10
 - 跨域：网关层统一添加跨域响应头，应用内部无需单独配置
 - 缓存：网关可以缓存一些频繁请求的数据，从而减轻后端微服务的压力，提高系统响应速度（补充一下，API 网关是业务流量的入口，它不像图片、视频等 CDN 加速的这种非业务流量）
 - 日志与监控：微服务网关可以记录请求和响应的日志，并提供监控指标，帮助开发团队诊断和解决问题
+
+[挖掘Kubernetes 弹性伸缩：利用 KEDA实现基于事件驱动的自动缩放器](https://mp.weixin.qq.com/s/Fu8kfzUhl2EyNQdxrg3uew)
+
+[Traefik 企业实战：路由规则篇](https://mp.weixin.qq.com/s/L89HPzvxKrxky4M_Rq5xUQ)
+
+[一文告诉你怎么打造对本地友好的 Kubernetes 工作环境](https://mp.weixin.qq.com/s/huCXB22q-SQrOcz6bKZnig)
+
+[一文告诉你怎么将应用搭上云原生这趟便车（上）](https://mp.weixin.qq.com/s/Dj5a4BANeuae-QHqWcoCnQ)
 
 [Ingress企业实战：部署多个Ingress控制器](https://mp.weixin.qq.com/s/FQOE2cGm9Qu0x-a9-vZiWw)
 
