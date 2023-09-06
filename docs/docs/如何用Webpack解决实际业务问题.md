@@ -28,6 +28,28 @@ sidebar_position: 5
 
 2、第三方库修改一般不会触发 Webpack 增量编译，需要修改业务工程 Webpack watch 监听范围。
 
+## 04 如何修改 loader 作用范围
+
+我们知道，Webpack 打包的时候一般会最小化 loader 作用范围，避免编译第三方库的代码，提升构建效率。但有时业务组件库会包含 ES6 代码，而业务工程由于某种原因需要第三方库转译到 ES5（比如 Webpack 版本过低，acorn 解析器不支持 ES6 代码），这种情况就需要手动修改 babel-loader 作用范围。
+
+比如实际业务中遇到一个问题，`react-hot-toast` 这个库用模板字符串写 CSS 样式，业务工程 browerslist 配置是 ES next，因此最终打包出来实际上会保留 ES6 代码，而模板字符串对代码压缩非常不友好，会显著增加产物体积。这里修改 exclude 让 babel-loader 处理 `react-hot-toast`，然后在 babel 配置里面加上 `@babel/plugin-transform-template-literals` 插件编译模板字符串，默认 target 配置不会降级到 ES5，需要手动配置插件。
+
+需要注意，在 monorepo 项目打包不能直接 `include: [path.join(workDir, "src")]`，否则会导致引用的子模块无法被处理到，需要用 `exclude: [{ and: [/node_modules/], not: [/react-hot-toast/] }]` 这种写法，先排除掉 `/node_modules/` 下的文件，但是保留 `/node_modules/react-hot-toast/` 这个文件夹：
+
+```js
+module.exports = {
+	module: {
+		rules: [
+			{
+				test: /\.(js|mjs|jsx|ts|tsx)$/,
+				exclude: [{ and: [/node_modules/], not: [/react-hot-toast/] }],
+				loader: require.resolve("babel-loader"),
+			}
+		]
+	}
+}
+```
+
 ## 04 解决模块包按需加载问题
 
 解法是 Webpack5 的 `optimization.sideEffects`（依赖 `optimization.providedExports` 配置），在 npm 包的 `package.json` 中添加 `"sideEffects": false` 就行：
