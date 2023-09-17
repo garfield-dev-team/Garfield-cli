@@ -56,6 +56,8 @@ sidebar_position: 10
 - 缓存：网关可以缓存一些频繁请求的数据，从而减轻后端微服务的压力，提高系统响应速度（补充一下，API 网关是业务流量的入口，它不像图片、视频等 CDN 加速的这种非业务流量）
 - 日志与监控：微服务网关可以记录请求和响应的日志，并提供监控指标，帮助开发团队诊断和解决问题
 
+[一文带你掌握Kubernetes VPA（Pod纵向自动扩缩）](https://mp.weixin.qq.com/s/IIRNbgZ-c2bTT5z0rCBmNA)
+
 [Ingress企业实战：实现GRPC与WebSocket服务访问](https://mp.weixin.qq.com/s/MhbwVmFQpTOpt0mcHVLhgw)
 
 [Traefik 企业实战：TraefikService篇](https://mp.weixin.qq.com/s/MtyG7vxYKo3o9AHrbU1uQQ)
