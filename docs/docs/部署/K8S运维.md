@@ -16,6 +16,8 @@ sidebar_position: 10
 
 [Prometheus-Operator：告警排班功能实现](https://mp.weixin.qq.com/s/e8s5fWMTDdb-fWlmOPUcNA)
 
+[如何快速实现Prometheus告警聚合](https://mp.weixin.qq.com/s/DlOUm8FYm5TkCvotTb8umw)
+
 ## ELK Stack生产实践
 
 在云原生微服务架构模式下，应用程序通常被设计成无状态（stateless）的，即应用程序不依赖于特定的运行环境状态。这种设计理念使得应用程序可以更加灵活地部署和扩展。
@@ -55,6 +57,10 @@ sidebar_position: 10
 - 跨域：网关层统一添加跨域响应头，应用内部无需单独配置
 - 缓存：网关可以缓存一些频繁请求的数据，从而减轻后端微服务的压力，提高系统响应速度（补充一下，API 网关是业务流量的入口，它不像图片、视频等 CDN 加速的这种非业务流量）
 - 日志与监控：微服务网关可以记录请求和响应的日志，并提供监控指标，帮助开发团队诊断和解决问题
+
+[如何使用Kaniko在 Kubernetes 集群中构建容器镜像](https://mp.weixin.qq.com/s/Nz9y7QNbv4Z1BhPirxq4kA)
+
+[Kubernetes架构原来这么简单](https://mp.weixin.qq.com/s/A5M45DZ--ROQDu3mNjJlAA)
 
 [一文带你掌握Kubernetes VPA（Pod纵向自动扩缩）](https://mp.weixin.qq.com/s/IIRNbgZ-c2bTT5z0rCBmNA)
 
