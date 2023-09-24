@@ -39,7 +39,7 @@ sidebar_position: 2
 - 支持运行时代码单独分包：`optimization.runtimeChunk: "single"`，默认分包规则 Initial Chunk、Async Chunk 基础上新增一种 Runtime Chunk
 - 针对 re-export 场景优化：`optimization.providedExports: true`，配合 `optimization.sideEffects: true` 可以实现第三方库按需打包（例如 antd@v5、ahooks），配合 `optimization.usedExports: true` 启用模块标记可以实现 Tree-Shaking
 - Module Federation（模块联邦让 Webpack 达到了线上 Runtime 的效果，让代码直接在项目间利用 CDN 直接共享，不再需要本地安装 Npm 包、构建再发布了）
-- 不再内置 Node.js polyfill，如果用到 Node 内置模块需要自行安装 polyfill
+- 不再内置 Node.js polyfill，如果用到 Node 内置模块需要自行安装并配置 [Node polyfill](https://webpack.js.org/configuration/resolve/#resolvefallback)
 
 ## 基于 React + TypeScript 的 Webpack5 配置最佳实践
 
