@@ -58,6 +58,10 @@ sidebar_position: 10
 - 缓存：网关可以缓存一些频繁请求的数据，从而减轻后端微服务的压力，提高系统响应速度（补充一下，API 网关是业务流量的入口，它不像图片、视频等 CDN 加速的这种非业务流量）
 - 日志与监控：微服务网关可以记录请求和响应的日志，并提供监控指标，帮助开发团队诊断和解决问题
 
+[一文了解负载均衡器、反向代理、API 网关区别](https://mp.weixin.qq.com/s/rOYfNXIeQXhiQ6B8bbdHOw)
+
+[一文带你深入理解Kubernetes Service](https://mp.weixin.qq.com/s/BvAWVcaoJrIQLmGGEhovlw)
+
 [如何使用Kaniko在 Kubernetes 集群中构建容器镜像](https://mp.weixin.qq.com/s/Nz9y7QNbv4Z1BhPirxq4kA)
 
 [Kubernetes架构原来这么简单](https://mp.weixin.qq.com/s/A5M45DZ--ROQDu3mNjJlAA)
