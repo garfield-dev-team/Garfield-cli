@@ -172,6 +172,123 @@ class InlineSvgPlugin implements WebpackPluginInstance {
 }
 ```
 
+再举个 Webpack plugin 和 loader 互操作的例子。Meta 最近开源了 StyleX，文档中提到本地 dev 的时候需要装 Babel 插件，而 build 为了简化配置，只需要一个 Webpack 插件，个人猜测其实就是在 Webpack 插件中帮你配置了 loader。
+
+```js title="webpack.config.js"
+const StylexPlugin = require('@stylexjs/webpack-plugin');
+const path = require('path');
+
+const config = (env, argv) => ({
+  entry: {
+    main: './src/index.js',
+  },
+  output: {
+    path: path.resolve(__dirname, '.build'),
+    filename: '[name].js',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: 'babel-loader',
+      },
+    ],
+  },
+  plugins: [
+    // Ensure that the stylex plugin is used before Babel
+    new StylexPlugin({
+      filename: 'styles.[contenthash].css',
+      // get webpack mode and set value for dev
+      dev: argv.mode === 'development',
+      // Use statically generated CSS files and not runtime injected CSS.
+      // Even in development.
+      runtimeInjection: false,
+      // optional. default: 'x'
+      classNamePrefix: 'x',
+      // Required for CSS variable support
+      unstable_moduleResolution: {
+        // type: 'commonJS' | 'haste'
+        // default: 'commonJS'
+        type: 'commonJS',
+        // The absolute path to the root directory of your project
+        rootDir: __dirname,
+      },
+    }),
+  ],
+  cache: true,
+});
+
+module.exports = config;
+```
+
+看了一下源码，果然如此。`NormalModule.getCompilationHooks(compilation)` 获取 `module` 对象，向 `loaders` 数组中添加 loader：
+
+```js
+class StylexPlugin {
+  // ...
+
+  apply(compiler) {
+    compiler.hooks.make.tap(PLUGIN_NAME, (compilation) => {
+      // Apply loader to JS modules.
+      NormalModule.getCompilationHooks(compilation).loader.tap(
+        PLUGIN_NAME,
+        (loaderContext, module) => {
+          if (
+            // .js, .jsx, .mjs, .cjs, .ts, .tsx, .mts, .cts
+            /\.[mc]?[jt]sx?$/.test(path.extname(module.resource))
+          ) {
+            // It might make sense to use .push() here instead of .unshift()
+            // Webpack usually runs loaders in reverse order and we want to ideally run
+            // our loader before anything else.
+            module.loaders.unshift({
+              loader: path.resolve(__dirname, "loader.js"),
+              options: { stylexPlugin: this },
+            });
+          }
+        }
+      );
+    });
+
+    // ...
+  }
+
+  // This function is not called by Webpack directly.
+  // Instead, `NormalModule.getCompilationHooks` is used to inject a loader
+  // for JS modules. The loader than calls this function.
+  async transformCode(inputCode, filename, logger) {
+    // ...
+  }
+}
+```
+
+在 loader 中则通过 `this.getOptions()` 拿到 loader 配置对象，其中包括 `stylexPlugin`，也就是插件实例，然后直接调用插件暴露的 `transformCode` 方法：
+
+```js
+const PLUGIN_NAME = 'stylex';
+
+module.exports = function stylexLoader(inputCode) {
+  const callback = this.async();
+  const { stylexPlugin } = this.getOptions();
+  const logger = this._compiler.getInfrastructureLogger(PLUGIN_NAME);
+
+  stylexPlugin.transformCode(inputCode, this.resourcePath, logger).then(
+    ({ code, map }) => {
+      callback(null, code, map);
+    },
+    (error) => {
+      callback(error);
+    },
+  );
+};
+```
+
+参考：
+
+https://stylexjs.com/docs/learn/installation/
+
+https://github.com/facebook/stylex/blob/main/packages/webpack-plugin/src/index.js
+
 ## 06 Webpack5 模块联邦在 SD WebUI 中的应用
 
 SD WebUI 是基于 Python 的前后端不分离项目，没有现代化前端工具链，这给我们二开带来很大的挑战。
